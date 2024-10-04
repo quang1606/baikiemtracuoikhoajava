@@ -550,8 +550,6 @@ public class CustomerService implements GeneralInformation<Customer> {
         }
     }
 
-
-
     //Ham nhap du lieu cho customer
     public Customer inputCustomer(Scanner scanner, User user) {
         String name = getInputName(scanner);

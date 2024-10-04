@@ -197,7 +197,7 @@ public class ShipperService implements GeneralInformation<Shipper> {
                     Database.adminList.get(1).setMoney(Database.adminList.get(1).getMoney().add(BigDecimal.valueOf(Utils.floorFee)));
                     Customer customer = Database.customerMap.get(order.getIdCustomer());
                     if (order.getTotalAmount().compareTo(BigDecimal.ZERO)==0){
-                        customer.setMoney(customer.getMoney().add(BigDecimal.valueOf(order.getSumShip())));
+                        shipper.setMoney(shipper.getMoney().add(BigDecimal.valueOf(order.getSumShip())));
                     }
                     shipper.setCount(0);
                     Database.abortMap.put(order.getId(),order);
