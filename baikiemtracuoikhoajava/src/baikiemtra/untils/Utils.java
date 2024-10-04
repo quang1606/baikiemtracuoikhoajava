@@ -8,6 +8,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class Utils {
+    //Danh dau don giao cua shipper
     public static final int floorFee = 3000;
     public static final double ship = 8000;
     private static final double EARTH_RADIUS = 6371.0;

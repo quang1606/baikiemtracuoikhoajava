@@ -21,6 +21,7 @@ public class ShipperService implements GeneralInformation<Shipper> {
         }
         return shipperService;
     }
+    AdminService adminService = AdminService.getInstance();
 
     @Override
     public void insert(Shipper object) {
@@ -38,6 +39,10 @@ public class ShipperService implements GeneralInformation<Shipper> {
 //Ham xem don giao thanh cong
     @Override
     public void displayDeliveredState(Shipper object) {
+        if (adminService.isLockedShipper(object)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+object.getLockDuration()+" ngay");
+            return;
+        }
         if ( Database.deliveredMap.isEmpty()){
             System.out.println("Ko co don hang nhap!");
             return;
@@ -56,6 +61,10 @@ public class ShipperService implements GeneralInformation<Shipper> {
 //Ham Xem don hang da huy
     @Override
     public void CancelledState(Shipper object) {
+        if (adminService.isLockedShipper(object)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+object.getLockDuration()+" ngay");
+            return;
+        }
         if (Database.abortMap.isEmpty()) {
             System.out.println("Không có đơn nào da huy");
             return;
@@ -99,6 +108,10 @@ public class ShipperService implements GeneralInformation<Shipper> {
 
     //Ham hien thi danh sach cac don o gan
     public void NearbyOrderList(Shipper shipper){
+        if (adminService.isLockedShipper(shipper)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+shipper.getLockDuration()+" ngay");
+            return;
+        }
         List<Order> shipperOrder = new ArrayList<>();
         for (Map.Entry<Integer,Order > entry : Database.orderMap.entrySet()) {
             if (entry.getValue().getState().getStateName().equals("Chờ lấy hàng")) {
@@ -125,21 +138,35 @@ public class ShipperService implements GeneralInformation<Shipper> {
 
     //Xac nhan don hang de giao
     public void orderConfirmation(Scanner scanner,Shipper shipper){
-        System.out.println("Nhap id don hang");
-        int id= Utils.inputInteger(scanner);
-        Order order = Database.orderMap.get(id);
-        if (order!=null && order.getState().getStateName().equals("Chờ lấy hàng")){
-            order.setIdShipper(shipper.getId());
-            order.nextState();
-            System.out.println("Đơn hàng " + order.getId() + " da dang giao.");
+        if (adminService.isLockedShipper(shipper)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+shipper.getLockDuration()+" ngay");
+            return;
+        }
+        //Kiem tra moi shipper chi duoc nhan 1 don de giao
+        if (shipper.getCount()==0) {
+            System.out.println("Nhap id don hang");
+            int id = Utils.inputInteger(scanner);
+            Order order = Database.orderMap.get(id);
+            if (order != null && order.getState().getStateName().equals("Chờ lấy hàng")) {
+                order.setIdShipper(shipper.getId());
+                shipper.setCount(1);
+                order.nextState();
+                System.out.println("Đơn hàng " + order.getId() + " da dang giao.");
+            } else {
+                System.out.println("Khong tim thay don");
+            }
         }else {
-            System.out.println("Khong tim thay don");
+            System.out.println("Ban phai giao not don hang, moi duoc nhan don moi!");
         }
     }
 
 
     //Xac nhan giao hang thanh cong hoac huy don
     public void deliveredState(Scanner scanner, Shipper shipper){
+        if (adminService.isLockedShipper(shipper)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+shipper.getLockDuration()+" ngay");
+            return;
+        }
         System.out.println("Nhap id don hang");
         int id= Utils.inputInteger(scanner);
         Order order = Database.orderMap.get(id);
@@ -159,6 +186,7 @@ public class ShipperService implements GeneralInformation<Shipper> {
                     if (order.getTotalAmount().compareTo(BigDecimal.ZERO)==0){
                         shipper.setMoney(shipper.getMoney().add(BigDecimal.valueOf(order.getSumShip())));
                     }
+                    shipper.setCount(0);
                     Database.adminList.get(1).setMoney(Database.adminList.get(1).getMoney().add(BigDecimal.valueOf(Utils.floorFee)));
                     Database.deliveredMap.put(order.getId(),order);
                     Database.orderMap.remove(order.getId());
@@ -171,6 +199,7 @@ public class ShipperService implements GeneralInformation<Shipper> {
                     if (order.getTotalAmount().compareTo(BigDecimal.ZERO)==0){
                         customer.setMoney(customer.getMoney().add(BigDecimal.valueOf(order.getSumShip())));
                     }
+                    shipper.setCount(0);
                     Database.abortMap.put(order.getId(),order);
                     Database.orderMap.remove(order.getId());
                     break;

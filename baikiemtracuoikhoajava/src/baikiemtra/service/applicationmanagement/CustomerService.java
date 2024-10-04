@@ -403,11 +403,12 @@ public class CustomerService implements GeneralInformation<Customer> {
                     customer.setMoney(customer.getMoney().subtract(order.getTotalAmount()));
                     System.out.println("Ban da thanh toan thanh cong don hang");
                     order.nextState();
-                    order.nextState();
-                    voucher.setQuantity(voucher.getQuantity()-1);
+
+                    if (voucher!=null) {
+                        voucher.setQuantity(voucher.getQuantity() - 1);
+                    }
                     Saller saller =Database.sallerMap.get(order.getIdSeller());
                     saller.setMoney(saller.getMoney().add(order.getFoodBill()));
-                    Database.adminList.get(1).setMoney(Database.adminList.get(1).getMoney().add(BigDecimal.valueOf(Utils.floorFee)));
                     order.setTotalAmount(BigDecimal.ZERO);
                     Database.orderMap.put(order.getId(),order);
                     Database.draftOrderMap.remove(draftOder.getId());

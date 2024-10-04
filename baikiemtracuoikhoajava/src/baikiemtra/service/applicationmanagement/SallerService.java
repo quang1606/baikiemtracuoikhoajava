@@ -43,6 +43,10 @@ public class SallerService implements GeneralInformation<Saller> {
     //Ham xem don giao thanh cong
     @Override
     public void displayDeliveredState(Saller object) {
+        if (adminService.isLocked(object)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+object.getLockDuration()+" ngay");
+            return;
+        }
         if (adminService.isLocked(object)) {
             System.out.println("Tài khoản của bạn đã bị khóa " + object.getLockDuration() + " ngay");
             return;
@@ -62,6 +66,11 @@ public class SallerService implements GeneralInformation<Saller> {
     //Ham xem don da huy
     @Override
     public void CancelledState(Saller object) {
+        if (adminService.isLocked(object)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+object.getLockDuration()+" ngay");
+            return;
+        }
+
         if (adminService.isLocked(object)) {
             System.out.println("Tài khoản của bạn đã bị khóa " + object.getLockDuration() + " ngay");
             return;
@@ -82,6 +91,7 @@ public class SallerService implements GeneralInformation<Saller> {
         }
     }
 
+    //Ham rut tien
     @Override
     public void withdrawMoney(Scanner scanner, Saller object) {
 
@@ -359,8 +369,6 @@ public class SallerService implements GeneralInformation<Saller> {
         }while (!check);
 
         }
-
-        //
 
     // Xử lý lựa chọn xác nhận hoặc hủy đơn hàng
         private void handleOrderChoice(Scanner scanner, Order order) {

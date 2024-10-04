@@ -33,10 +33,10 @@ AdminService adminService = AdminService.getInstance();
                 adminService.unlockAccount(scanner);
                 break;
             case 3:
-
+                adminService.accountLockShipper(scanner);
                 break;
             case 4:
-
+                adminService.unlockAccountShipper(scanner);
                 break;
             case 5:
                 adminService.withdrawMoney(scanner);

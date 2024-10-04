@@ -18,6 +18,7 @@ public class Database {
   public static final Map<Integer,Order> singleReviewMap = new HashMap<>();
  public static final  Map<Integer,Feedback > feedbackMap = new HashMap<>();
 public static final Map<Integer,Saller> accountLockSeller = new HashMap<>();
+  public static final Map<Integer,Shipper> accountLockShipper = new HashMap<>();
  public static  final Map<Integer,Admin> adminList = new HashMap<>();
 
   static {
