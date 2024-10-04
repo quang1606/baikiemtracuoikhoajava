@@ -213,6 +213,7 @@ public class Order {
                 ", Tên khách hàng: " + nameCustomer +
                 ", Tên người bán: " + nameSeller +
                 ", Món ăn: " + foodName +
+                ", ID mon an: " +idFood +
                 ", Số lượng: " + quantity +
                 ", Phí sàn: " + floorFee + " VND" +
                 ", Phí vận chuyển: " + sumShip + " VND" +

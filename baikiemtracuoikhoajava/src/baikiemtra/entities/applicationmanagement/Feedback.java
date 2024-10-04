@@ -5,18 +5,27 @@ public class Feedback {
     private int id;
     private int idCustomer;
     private int idFood;
+    private int idSeller;
     private String nameCustomer;
     private Review review;
     private String  Content;
 
-    public Feedback(int idCustomer, int idFood, String nameCustomer, Review review, String content) {
+    public Feedback(int idCustomer, int idFood, String nameCustomer, Review review, String content,int idSeller) {
         this.id = ++idCount;
         this.idCustomer = idCustomer;
         this.idFood = idFood;
         this.nameCustomer = nameCustomer;
         this.review = review;
+        this.idSeller = idSeller;
+        this.Content = content;
+    }
 
-        Content = content;
+    public int getIdSeller() {
+        return idSeller;
+    }
+
+    public void setIdSeller(int idSeller) {
+        this.idSeller = idSeller;
     }
 
     public Review getReview() {

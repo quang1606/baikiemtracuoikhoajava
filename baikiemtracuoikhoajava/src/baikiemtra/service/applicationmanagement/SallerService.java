@@ -12,30 +12,109 @@ import java.util.*;
 public class SallerService implements GeneralInformation<Saller> {
     private static SallerService sallerServicec;
 
-    private SallerService(){
+    private SallerService() {
 
     }
 
-    public static synchronized SallerService getInstance(){
-        if (sallerServicec==null){
+    public static synchronized SallerService getInstance() {
+        if (sallerServicec == null) {
             sallerServicec = new SallerService();
         }
         return sallerServicec;
     }
+
+    AdminService adminService = AdminService.getInstance();
+
     //Nhap thong tin quan
     @Override
     public void insert(Saller object) {
-        Database.sallerMap.put(object.getId(),object);
+        Database.sallerMap.put(object.getId(), object);
     }
+
     //Ham update lai thong tin quan
     @Override
     public void UpdateInformation(Scanner scanner, Saller object) {
+
         object.setName(getInputName(scanner));
         object.setLongitude(getInputLongitude(scanner));
         object.setLatitude(getInputLatitude(scanner));
     }
+
+    //Ham xem don giao thanh cong
+    @Override
+    public void displayDeliveredState(Saller object) {
+        if (adminService.isLocked(object)) {
+            System.out.println("Tài khoản của bạn đã bị khóa " + object.getLockDuration() + " ngay");
+            return;
+        }
+        boolean hasOrders = false;
+        for (Map.Entry<Integer, Order> entry : Database.deliveredMap.entrySet()) {
+            if (object.getId() == entry.getValue().getIdSeller()) {
+                System.out.println(entry.getValue());
+                hasOrders = true;
+            }
+        }
+        if (!hasOrders) {
+            System.out.println("Không có đơn nào.");
+        }
+    }
+
+    //Ham xem don da huy
+    @Override
+    public void CancelledState(Saller object) {
+        if (adminService.isLocked(object)) {
+            System.out.println("Tài khoản của bạn đã bị khóa " + object.getLockDuration() + " ngay");
+            return;
+        }
+        if (Database.abortMap.isEmpty()) {
+            System.out.println("Không có đơn nào da huy");
+            return;
+        }
+        boolean hasOrders = false;
+        for (Map.Entry<Integer, Order> entry : Database.abortMap.entrySet()) {
+            if (object.getId() == entry.getValue().getIdSeller()) {
+                System.out.println(entry.getValue());
+                hasOrders = true;
+            }
+        }
+        if (!hasOrders) {
+            System.out.println("Không có đơn nào.");
+        }
+    }
+
+    @Override
+    public void withdrawMoney(Scanner scanner, Saller object) {
+
+        if (object.getMoney().compareTo(BigDecimal.ZERO) == 0) {
+            System.out.println("Tai khoan ban 0 co tien ");
+            return;
+        }
+        System.out.println("Số tiền bạn đang có: " + object.getMoney() + " K");
+        double money;
+
+        do {
+            System.out.println("Nhập số tiền bạn muốn rút: ");
+            money = Utils.inputDouble(scanner);
+
+            BigDecimal withdrawMoney = BigDecimal.valueOf(money);
+            if (withdrawMoney.compareTo(object.getMoney()) <= 0 && withdrawMoney.compareTo(BigDecimal.ZERO) > 0) {
+                System.out.println("Rút tiền thành công: " + withdrawMoney + " K");
+                object.setMoney(object.getMoney().subtract(withdrawMoney));
+                return;
+
+            } else {
+                System.out.println("So tien khong hop le, vui lòng nhập lại.");
+            }
+        } while (true); // Tiếp tục yêu cầu cho đến khi có đầu vào hợp lệ
+    }
+
+
     //Ham them mon an
     public void addFood(Scanner scanner,Saller saller){
+        if (adminService.isLocked(saller)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+saller.getLockDuration()+" ngay");
+            return;
+        }
         TypeOfFood typeOfFood = selectFoodType(scanner);
         String name = inputFoodName(scanner);
         int quantity = inputQuantity(scanner);
@@ -47,6 +126,10 @@ public class SallerService implements GeneralInformation<Saller> {
 
     //ham xoa mon an
     public void deleteFood(Scanner scanner, Saller saller){
+        if (adminService.isLocked(saller)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+saller.getLockDuration()+" ngay");
+            return;
+        }
         System.out.println("Nhap id mon: ");
         int id = Utils.inputInteger(scanner);
         Food menu = Database.menuMap.get(id);
@@ -59,6 +142,10 @@ public class SallerService implements GeneralInformation<Saller> {
 
     //Ham chinh sua thong tin mon an
     public void updateFood(Scanner scanner, Saller saller){
+        if (adminService.isLocked(saller)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+saller.getLockDuration()+" ngay");
+            return;
+        }
         System.out.println("Nhap id mon: ");
         int id = Utils.inputInteger(scanner);
         Food menu = Database.menuMap.get(id);
@@ -70,6 +157,10 @@ public class SallerService implements GeneralInformation<Saller> {
 
     //Ham hien thi danh sach mon an
     public void selectFood(Saller saller) {
+        if (adminService.isLocked(saller)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+saller.getLockDuration()+" ngay");
+            return;
+        }
         if (Database.menuMap.isEmpty()) {
             System.out.println("Không có món ăn nào trong menu");
             return;
@@ -89,6 +180,10 @@ public class SallerService implements GeneralInformation<Saller> {
 
     //Ham them voucher
     public void insertVoucher(Scanner scanner,Saller saller){
+        if (adminService.isLocked(saller)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+saller.getLockDuration()+" ngay");
+            return;
+        }
         double reductionLevel = inputPrice(scanner);
         int quantity = inputQuantity(scanner);
         LocalDateTime staterTime = Utils.inputLocalDateTime(scanner);
@@ -99,6 +194,10 @@ public class SallerService implements GeneralInformation<Saller> {
 
     //Ham hien thi danh sach voucher
     public void selectVoucher(Saller saller) {
+        if (adminService.isLocked(saller)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+saller.getLockDuration()+" ngay");
+            return;
+        }
         if (Database.voucherMap.isEmpty()) {
             System.out.println("Không có voucher");
             return;
@@ -120,7 +219,6 @@ public class SallerService implements GeneralInformation<Saller> {
                 // Xóa voucher nếu hết hạn hoặc số lượng <= 0
                 if (voucher.getQuantity() <= 0 || voucher.getEndTime().isBefore(currentTime)) {
                     iterator.remove();
-                    System.out.println("Xoa voucher het han voi ID: " + entry.getKey());
                 }
             }
         }
@@ -133,6 +231,10 @@ public class SallerService implements GeneralInformation<Saller> {
 
         // Phương thức chính để xác nhận hoặc hủy đơn hàng
         public void orderConfirmation(Scanner scanner, Saller saller) {
+            if (adminService.isLocked(saller)){
+                System.out.println("Tài khoản của bạn đã bị khóa "+saller.getLockDuration()+" ngay");
+                return;
+            }
             if (Database.orderMap.isEmpty()) {
                 System.out.println("Không có đơn nào chờ duyệt");
                 return;
@@ -156,9 +258,8 @@ public class SallerService implements GeneralInformation<Saller> {
                 }
         }
 
-        // Hiển thị danh sách đơn hàng thuộc người bán
+        // Hiển thị danh sách đơn hàng cho duyet thuộc người bán
         private boolean displayOrdersForSeller(Saller saller) {
-
             List<Order> newOrder = new ArrayList<>();
             for (Map.Entry<Integer, Order> entry : Database.orderMap.entrySet()) {
                 if (saller.getId() == entry.getValue().getIdSeller() && entry.getValue().getState().getStateName().equals("Chờ xác nhận")) {
@@ -175,6 +276,14 @@ public class SallerService implements GeneralInformation<Saller> {
 
         //Xem don hang cho lay
     public void displayAwaitingPickupState(Saller saller) {
+        if (adminService.isLocked(saller)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+saller.getLockDuration()+" ngay");
+            return;
+        }
+        if (Database.orderMap.isEmpty()) {
+            System.out.println("Không có đơn nào chờ lay");
+            return;
+        }
         boolean hasOrders = false;
         for (Map.Entry<Integer, Order> entry : Database.orderMap.entrySet()) {
             if (saller.getId() == entry.getValue().getIdSeller() && entry.getValue().getState().getStateName().equals("Chờ lấy hàng")) {
@@ -189,6 +298,14 @@ public class SallerService implements GeneralInformation<Saller> {
 
     //Xem danh sach don cho giao
     public void displayAwaitingDeliveryState(Saller saller) {
+        if (adminService.isLocked(saller)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+saller.getLockDuration()+" ngay");
+            return;
+        }
+        if (Database.orderMap.isEmpty()) {
+            System.out.println("Không có đơn nào chờ giao");
+            return;
+        }
         boolean hasOrders = false;
         for (Map.Entry<Integer, Order> entry : Database.orderMap.entrySet()) {
             if (saller.getId() == entry.getValue().getIdSeller() && entry.getValue().getState().getStateName().equals("Chờ giao hàng")) {
@@ -201,52 +318,30 @@ public class SallerService implements GeneralInformation<Saller> {
         }
     }
 
-    //Xem danh sach da giao thanh cong
-    public void displayDeliveredState(Saller saller) {
+
+    //Xem danh gia don hang cua shop
+    public void SeeOrderReviews(Saller saller){
+        if (adminService.isLocked(saller)){
+            System.out.println("Tài khoản của bạn đã bị khóa "+saller.getLockDuration()+" ngay");
+            return;
+        }
+        if (Database.feedbackMap.isEmpty()) {
+            System.out.println("Không có danh gia nao cho shop");
+            return;
+        }
         boolean hasOrders = false;
-        for (Map.Entry<Integer, Order> entry : Database.deliveredMap.entrySet()) {
+        for (Map.Entry<Integer, Feedback> entry : Database.feedbackMap.entrySet()) {
             if (saller.getId() == entry.getValue().getIdSeller()) {
                 System.out.println(entry.getValue());
                 hasOrders = true;
             }
         }
         if (!hasOrders) {
-            System.out.println("Không có đơn nào.");
+            System.out.println("Không có đanh gia nao!.");
         }
+
     }
 
-    //Xem danh sach don hang da huy
-    public void CancelledState(Saller saller){
-        boolean hasOrders = false;
-        for (Map.Entry<Integer, Order> entry : Database.abortMap.entrySet()) {
-            if (saller.getId() == entry.getValue().getIdSeller()) {
-                System.out.println(entry.getValue());
-                hasOrders = true;
-            }
-        }
-        if (!hasOrders) {
-            System.out.println("Không có đơn nào.");
-        }
-    }
-
-    //Ham rut tien
-    public void withdrawMoney(Scanner scanner, Saller saller) {
-        System.out.println("Số tiền bạn đang có: " + saller.getMoney() + " K");
-        double money;
-
-        do {
-            System.out.println("Nhập số tiền bạn muốn rút: ");
-            money = Utils.inputDouble(scanner);
-            BigDecimal withdrawMoney = BigDecimal.valueOf(money);
-            if (withdrawMoney.compareTo( saller.getMoney()) <= 0) {
-                System.out.println("Rút tiền thành công: " + withdrawMoney + " K");
-               saller.setMoney(saller.getMoney().subtract(withdrawMoney));
-                return;
-            } else {
-                System.out.println("Không đủ tiền, vui lòng nhập lại.");
-            }
-        } while (true); // Tiếp tục yêu cầu cho đến khi có đầu vào hợp lệ
-    }
 
         // Xử lý quyết định của người bán cho đơn hàng (xác nhận hoặc hủy)
         private void processOrderDecision(Scanner scanner, int orderId) {
@@ -291,8 +386,6 @@ public class SallerService implements GeneralInformation<Saller> {
                         break;
                 }
         }
-
-
 
     public Saller intputSaller(Scanner scanner, User user){
        String name = getInputName(scanner);
@@ -352,7 +445,7 @@ public class SallerService implements GeneralInformation<Saller> {
     }
 
     // Hàm chọn loại món ăn
-    public TypeOfFood selectFoodType(Scanner scanner) {
+    private TypeOfFood selectFoodType(Scanner scanner) {
         System.out.println("Moi ban chon kieu mon:");
         System.out.println("1 - Do an");
         System.out.println("2 - Do uong");

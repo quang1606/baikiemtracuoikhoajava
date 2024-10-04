@@ -19,8 +19,8 @@ public class MenuShipper {
             System.out.println("2 - Danh sach don hang cho giao gan nhat ");
             System.out.println("3 - Xac nhan don hang can giao");
             System.out.println("4 - Xac nhan don hang giao thanh cong");
-            System.out.println("5 - Lich su giao hang");
-            System.out.println("6 - Nap tien");
+            System.out.println("5 - Lich su giao hang thanh cong");
+            System.out.println("6 - Xem don hang da huy");
             System.out.println("7 - Rut tien");
             System.out.println("8 -Dang xuat");
             selectShipper(scanner,user);
@@ -45,13 +45,16 @@ public class MenuShipper {
                 shipperService.deliveredState(scanner,shipper);
                 break;
             case 5:
-                shipperService.displayDeliveryHistory(shipper);
+                shipperService.displayDeliveredState(shipper);
                 break;
             case 6:
+                shipperService.CancelledState(shipper);
                 break;
 
             case 7:
+                shipperService.withdrawMoney(scanner,shipper);
                 break;
+
             case 8:
                 user=null;
                 System.out.println("Ban da dang xuat thanh cong");

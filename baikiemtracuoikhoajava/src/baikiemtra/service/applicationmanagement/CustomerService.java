@@ -37,6 +37,67 @@ public class CustomerService implements GeneralInformation<Customer> {
         object.setPhoneNumber(getInputPhoneNumber(scanner));
         System.out.println("Doi thong tin thanh cong!");
     }
+//Ham don giao thanh cong
+    @Override
+    public void displayDeliveredState(Customer object) {
+        if ( Database.deliveredMap.isEmpty()){
+            System.out.println("Ko co don hang !");
+            return;
+        }
+        boolean hasOrders = false;
+        for (Map.Entry<Integer,Order> entry : Database.deliveredMap.entrySet()){
+            if (entry.getValue().getIdCustomer()==object.getId()){
+                System.out.println(entry.getValue());
+                hasOrders =true;
+            }
+        }
+        if(!hasOrders) {
+            System.out.println("Ban chua mua don hang nao!");
+        }
+    }
+//Ham don hang da huy
+    @Override
+    public void CancelledState(Customer object) {
+        if ( Database.abortMap.isEmpty()){
+            System.out.println("Ko co don hang nhap!");
+            return;
+        }
+        boolean hasOrders = false;
+        for (Map.Entry<Integer,Order> entry : Database.abortMap.entrySet()){
+            if (entry.getValue().getIdCustomer()==object.getId()){
+                System.out.println(entry.getValue());
+                hasOrders =true;
+            }
+        }
+        if (!hasOrders){
+            System.out.println("Ban chua huy don nao!");
+        }
+    }
+//Ham rut tien
+    @Override
+    public void withdrawMoney(Scanner scanner, Customer object) {
+        if (object.getMoney().compareTo(BigDecimal.ZERO)==0){
+            System.out.println("Tai khoan ban 0 co tien ");
+            return;
+        }
+        System.out.println("Số tiền bạn đang có: " + object.getMoney() + " K");
+        double money;
+
+        do {
+            System.out.println("Nhập số tiền bạn muốn rút: ");
+            money = Utils.inputDouble(scanner);
+
+            BigDecimal withdrawMoney = BigDecimal.valueOf(money);
+            if (withdrawMoney.compareTo( object.getMoney()) <= 0 && withdrawMoney.compareTo(BigDecimal.ZERO)>0) {
+                System.out.println("Rút tiền thành công: " + withdrawMoney + " K");
+                object.setMoney(object.getMoney().subtract(withdrawMoney));
+                return;
+
+            } else {
+                System.out.println("So tien khong hop le, vui lòng nhập lại.");
+            }
+        } while (true); // Tiếp tục yêu cầu cho đến khi có đầu vào hợp lệ
+    }
 
 
     //Ham tim kiem theo ten
@@ -46,9 +107,30 @@ public class CustomerService implements GeneralInformation<Customer> {
         System.out.println("Thông tin tìm kiếm dựa trên " + name + " là:");
         boolean found = basicSearch(scanner, name, customer);
         if (found) {
+            String choice ;
             searchFilter(scanner, name, customer);
         } else {
             System.out.println("Không cần tìm kiếm thêm bộ lọc vì không tìm thấy món ăn.");
+        }
+    }
+
+    //Ham xem binh luan
+    public void seeComments(Scanner scanner){
+        if ( Database.feedbackMap.isEmpty()){
+            System.out.println("Ko co don hang !");
+            return;
+        }
+        System.out.println("Nhap id mon an ban can xem binh luan");
+        int id =Utils.inputInteger(scanner);
+        boolean hasOrders = false;
+        for (Map.Entry<Integer,Feedback> entry : Database.feedbackMap.entrySet()){
+            if (entry.getValue().getIdFood()==id){
+                System.out.println(entry.getValue());
+                hasOrders =true;
+            }
+        }
+        if (!hasOrders){
+            System.out.println("Don hang Chua co binh luan nao");
         }
     }
 
@@ -94,44 +176,6 @@ public class CustomerService implements GeneralInformation<Customer> {
         }
     }
 
-
-    // don hang da giao
-    public void displayDelivered(Customer customer){
-        if ( Database.deliveredMap.isEmpty()){
-            System.out.println("Ko co don hang !");
-            return;
-        }
-        boolean hasOrders = false;
-            for (Map.Entry<Integer,Order> entry : Database.deliveredMap.entrySet()){
-                if (entry.getValue().getIdCustomer()==customer.getId()){
-                    System.out.println(entry.getValue());
-                    hasOrders =true;
-                }
-            }
-        if(!hasOrders) {
-            System.out.println("Ban chua mua don hang nao!");
-        }
-    }
-
-
-    //Lich su don hang da huy
-    public void displayAbort(Customer customer){
-        if ( Database.abortMap.isEmpty()){
-            System.out.println("Ko co don hang nhap!");
-            return;
-        }
-        boolean hasOrders = false;
-            for (Map.Entry<Integer,Order> entry : Database.abortMap.entrySet()){
-                if (entry.getValue().getIdCustomer()==customer.getId()){
-                    System.out.println(entry.getValue());
-                    hasOrders =true;
-                }
-            }
-       if (!hasOrders){
-            System.out.println("Ban chua huy don nao!");
-        }
-    }
-
     //Danh sach don nhap
     public void displayDraftOrder(Customer customer){
         if ( Database.draftOrderMap.isEmpty()){
@@ -150,6 +194,7 @@ public class CustomerService implements GeneralInformation<Customer> {
         }
     }
 
+
     //Mua hang trong don nhap
     public void buyDraftOrder( Scanner scanner,Customer customer){
         System.out.println("Nhap id don can mua: ");
@@ -161,7 +206,6 @@ public class CustomerService implements GeneralInformation<Customer> {
             BigDecimal foodBill = foodBill(draftOder);
             BigDecimal totalAmount = BigDecimal.valueOf(sumShip).add(foodBill).add(BigDecimal.valueOf(Utils.floorFee));
             Order order = new Order(draftOder.getIdSeller(), customer.getId(), customer.getName(), draftOder.getNameSeller(), draftOder.getMenuName(), draftOder.getQuantity(), Utils.floorFee, sumShip, foodBill, totalAmount, customer.getPhoneNumber(), draftOder.getIdMenu());
-
             System.out.println(order);
             Voucher voucherValue = chooseVoucher(scanner, saller);
             if (voucherValue!=null){
@@ -178,6 +222,7 @@ public class CustomerService implements GeneralInformation<Customer> {
             System.out.println("So luong ko hop le hoac ko co san pham");
         }
     }
+
 
     //Danh gia don hang
     public void feedback(Customer customer, Scanner scanner){
@@ -207,13 +252,12 @@ public class CustomerService implements GeneralInformation<Customer> {
             Review review = chooseStars(scanner);
             System.out.println("Nhap noi dung danh gia");
             String feedback = scanner.nextLine();
-                Feedback feedback1 = new Feedback(customer.getId(),order.getIdFood(),customer.getName(),review,feedback);
+                Feedback feedback1 = new Feedback(customer.getId(),order.getIdFood(),customer.getName(),review,feedback,order.getIdSeller());
                 Database.feedbackMap.put(feedback1.getId(),feedback1);
             Database.singleReviewMap.put(order.getId(), order);
         }
 
     }
-
 
 
     //Ham nap tien
@@ -222,6 +266,43 @@ public class CustomerService implements GeneralInformation<Customer> {
         String input = scanner.nextLine();
         BigDecimal recharge = new BigDecimal(input);
         RechargePurchases(scanner,customer,recharge);
+    }
+
+    //Ham huy don hang
+    public void cancelOrder(Scanner scanner, Customer customer){
+        if (displayAwaitingPickupState(customer)){
+            System.out.println("Nhap id don hang de huy");
+            int id = Utils.inputInteger(scanner);
+            if (Database.orderMap.get(id) != null) {
+                Order order = Database.orderMap.get(id);
+                order.setState(new  CancelledState());
+                System.out.println("Đơn hàng " + order.getId() + " đã bị hủy.");
+                Database.abortMap.put(order.getId(),order);
+                Database.orderMap.remove(order.getId());
+            } else {
+                System.out.println("Không tìm thấy đơn hàng với mã " + id);
+            }
+        }else {
+            System.out.println("Khong co don nao co the huy duoc!");
+        }
+    }
+
+
+    //Kiem tra xem nhung don nao dang cho lay
+    private boolean displayAwaitingPickupState(Customer customer) {
+
+        List<Order> newOrder = new ArrayList<>();
+        for (Map.Entry<Integer, Order> entry : Database.orderMap.entrySet()) {
+            if (customer.getId() == entry.getValue().getIdSeller() && entry.getValue().getState().getStateName().equals("Chờ lấy hàng")) {
+                System.out.println(entry.getValue());
+                newOrder.add(entry.getValue());
+            }
+        }
+
+        if (!newOrder.isEmpty()) {
+            return  true;
+        }
+        return false;
     }
 
 
@@ -321,7 +402,12 @@ public class CustomerService implements GeneralInformation<Customer> {
                     RechargePurchases(scanner,customer,order.getTotalAmount().subtract(customer.getMoney()));
                     customer.setMoney(customer.getMoney().subtract(order.getTotalAmount()));
                     System.out.println("Ban da thanh toan thanh cong don hang");
+                    order.nextState();
+                    order.nextState();
                     voucher.setQuantity(voucher.getQuantity()-1);
+                    Saller saller =Database.sallerMap.get(order.getIdSeller());
+                    saller.setMoney(saller.getMoney().add(order.getFoodBill()));
+                    Database.adminList.get(1).setMoney(Database.adminList.get(1).getMoney().add(BigDecimal.valueOf(Utils.floorFee)));
                     order.setTotalAmount(BigDecimal.ZERO);
                     Database.orderMap.put(order.getId(),order);
                     Database.draftOrderMap.remove(draftOder.getId());
@@ -417,6 +503,7 @@ public class CustomerService implements GeneralInformation<Customer> {
                         " - Danh gia: " + entry.getValue().getRateStars() +
                         " - Khoảng cách: " + distance + " km");
                 found = true;
+
             }
         }
         if (!found) {
@@ -493,6 +580,5 @@ public class CustomerService implements GeneralInformation<Customer> {
         System.out.println("Nhap vao sdt:");
         return scanner.nextLine();
     }
-
 
 }

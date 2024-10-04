@@ -3,6 +3,7 @@ package baikiemtra.entities.applicationmanagement;
 import baikiemtra.entities.login.User;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public class Saller extends User {
 
@@ -11,15 +12,33 @@ public class Saller extends User {
     private double latitude;
     private boolean available;
     private BigDecimal money =BigDecimal.ZERO;
-
+    private LocalDateTime lockTime;
+    private int lockDuration ;
 
     public Saller(String useName, String passWord, String email, Role role, String name, double longitude, double latitude, boolean available) {
         super(useName, passWord, email, role);
         this.name = name;
         this.longitude = longitude;
         this.latitude = latitude;
-        this.available = available;
-        this.money = money;
+        this.available = true;
+        this.lockTime = null;
+        this.lockDuration = 0;
+    }
+
+    public int getLockDuration() {
+        return lockDuration;
+    }
+
+    public void setLockDuration(int lockDuration) {
+        this.lockDuration = lockDuration;
+    }
+
+    public LocalDateTime getLockTime() {
+        return lockTime;
+    }
+
+    public void setLockTime(LocalDateTime lockTime) {
+        this.lockTime = lockTime;
     }
 
     public String getName() {
@@ -61,5 +80,17 @@ public class Saller extends User {
 
     public BigDecimal getMoney() {
         return money;
+    }
+
+    @Override
+    public String toString() {
+        return "Saller{" +
+                "ID= "+getId()+
+                "name='" + name + '\'' +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
+                ", available=" + available +
+                ", money=" + money +
+                '}';
     }
 }

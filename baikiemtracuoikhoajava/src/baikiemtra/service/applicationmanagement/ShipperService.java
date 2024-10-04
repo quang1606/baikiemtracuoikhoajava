@@ -1,13 +1,11 @@
 package baikiemtra.service.applicationmanagement;
 
 import baikiemtra.data.Database;
-import baikiemtra.entities.applicationmanagement.Order;
-import baikiemtra.entities.applicationmanagement.Saller;
-import baikiemtra.entities.applicationmanagement.Shipper;
-import baikiemtra.entities.applicationmanagement.Voucher;
+import baikiemtra.entities.applicationmanagement.*;
 import baikiemtra.entities.login.User;
 import baikiemtra.untils.Utils;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class ShipperService implements GeneralInformation<Shipper> {
@@ -36,6 +34,67 @@ public class ShipperService implements GeneralInformation<Shipper> {
         object.setLongitude(getInputLongitude(scanner));
         System.out.println("Thong tin da duoc cap nhat !");
 
+    }
+//Ham xem don giao thanh cong
+    @Override
+    public void displayDeliveredState(Shipper object) {
+        if ( Database.deliveredMap.isEmpty()){
+            System.out.println("Ko co don hang nhap!");
+            return;
+        }
+        boolean hasOrders = false;
+        for (Map.Entry<Integer,Order> entry : Database.deliveredMap.entrySet()){
+            if (entry.getValue().getIdShipper()==object.getId()){
+                System.out.println(entry.getValue());
+                hasOrders =true;
+            }
+        }
+        if(!hasOrders) {
+            System.out.println("Ban chua giao don hang nao!");
+        }
+    }
+//Ham Xem don hang da huy
+    @Override
+    public void CancelledState(Shipper object) {
+        if (Database.abortMap.isEmpty()) {
+            System.out.println("Không có đơn nào da huy");
+            return;
+        }
+        boolean hasOrders = false;
+        for (Map.Entry<Integer, Order> entry : Database.abortMap.entrySet()) {
+            if (object.getId() == entry.getValue().getIdShipper()) {
+                System.out.println(entry.getValue());
+                hasOrders = true;
+            }
+        }
+        if (!hasOrders) {
+            System.out.println("Không có đơn nào.");
+        }
+    }
+    //Ham rut tien
+    @Override
+    public void withdrawMoney(Scanner scanner, Shipper object) {
+        if (object.getMoney().compareTo(BigDecimal.ZERO)==0){
+            System.out.println("Tai khoan ban 0 co tien ");
+            return;
+        }
+        System.out.println("Số tiền bạn đang có: " + object.getMoney() + " K");
+        double money;
+
+        do {
+            System.out.println("Nhập số tiền bạn muốn rút: ");
+            money = Utils.inputDouble(scanner);
+
+            BigDecimal withdrawMoney = BigDecimal.valueOf(money);
+            if (withdrawMoney.compareTo( object.getMoney()) <= 0 && withdrawMoney.compareTo(BigDecimal.ZERO)>0) {
+                System.out.println("Rút tiền thành công: " + withdrawMoney + " K");
+                object.setMoney(object.getMoney().subtract(withdrawMoney));
+                return;
+
+            } else {
+                System.out.println("So tien khong hop le, vui lòng nhập lại.");
+            }
+        } while (true); // Tiếp tục yêu cầu cho đến khi có đầu vào hợp lệ
     }
 
     //Ham hien thi danh sach cac don o gan
@@ -97,12 +156,21 @@ public class ShipperService implements GeneralInformation<Shipper> {
                     Database.menuMap.get(order.getIdFood()).setQuantitySold(order.getQuantity());
                     Voucher voucher= Database.voucherMap.get(order.getIdVoucher());
                     voucher.setQuantity(voucher.getQuantity()-1);
+                    if (order.getTotalAmount().compareTo(BigDecimal.ZERO)==0){
+                        shipper.setMoney(shipper.getMoney().add(BigDecimal.valueOf(order.getSumShip())));
+                    }
+                    Database.adminList.get(1).setMoney(Database.adminList.get(1).getMoney().add(BigDecimal.valueOf(Utils.floorFee)));
                     Database.deliveredMap.put(order.getId(),order);
                     Database.orderMap.remove(order.getId());
                     break;
                 case 2:
                     order.setState(new CancelledState()); // Chuyển trạng thái sang "Đã hủy"
                     System.out.println("Đơn hàng " + order.getId() + " đã bị hủy.");
+                    Database.adminList.get(1).setMoney(Database.adminList.get(1).getMoney().add(BigDecimal.valueOf(Utils.floorFee)));
+                    Customer customer = Database.customerMap.get(order.getIdCustomer());
+                    if (order.getTotalAmount().compareTo(BigDecimal.ZERO)==0){
+                        customer.setMoney(customer.getMoney().add(BigDecimal.valueOf(order.getSumShip())));
+                    }
                     Database.abortMap.put(order.getId(),order);
                     Database.orderMap.remove(order.getId());
                     break;
@@ -112,24 +180,6 @@ public class ShipperService implements GeneralInformation<Shipper> {
             }
         }else {
             System.out.println("Khong tim thay don");
-        }
-    }
-
-    //Lich su giao hang
-    public void displayDeliveryHistory(Shipper shipper){
-        if ( Database.deliveredMap.isEmpty()){
-            System.out.println("Ko co don hang nhap!");
-            return;
-        }
-        boolean hasOrders = false;
-        for (Map.Entry<Integer,Order> entry : Database.deliveredMap.entrySet()){
-            if (entry.getValue().getIdShipper()==shipper.getId()){
-                System.out.println(entry.getValue());
-                hasOrders =true;
-            }
-        }
-        if(!hasOrders) {
-            System.out.println("Ban chua giao don hang nao!");
         }
     }
 

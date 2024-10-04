@@ -18,6 +18,7 @@ public class User {
         this.role = role;
     }
 
+
     public static int getIdAuto() {
         return idAuto;
     }

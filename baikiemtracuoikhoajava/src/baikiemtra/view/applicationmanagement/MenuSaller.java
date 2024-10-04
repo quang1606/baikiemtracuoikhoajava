@@ -97,6 +97,7 @@ public class MenuSaller {
                 displayOrderStatus(scanner,saller,user);
                 break;
             case 10:
+                sallerService.SeeOrderReviews(saller);
                 break;
 
             case 11:
