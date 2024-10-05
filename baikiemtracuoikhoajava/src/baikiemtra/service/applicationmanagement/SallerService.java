@@ -121,7 +121,6 @@ public class SallerService implements GeneralInformation<Saller> {
         }
         TypeOfFood typeOfFood = selectFoodType(scanner);
         String name = inputFoodName(scanner);
-        int quantity = inputQuantity(scanner);
         double price = inputPrice(scanner);
         int idSaller = saller.getId();
         Food menu = new Food(name,typeOfFood,price,idSaller);
