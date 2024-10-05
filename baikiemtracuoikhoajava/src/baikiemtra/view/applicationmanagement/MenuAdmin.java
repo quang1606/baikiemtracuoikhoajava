@@ -40,6 +40,7 @@ AdminService adminService = AdminService.getInstance();
                 break;
             case 5:
                 adminService.withdrawMoney(scanner);
+                break;
             case 6:
                 user=null;
                 System.out.println("Ban da dang xuat thanh cong");

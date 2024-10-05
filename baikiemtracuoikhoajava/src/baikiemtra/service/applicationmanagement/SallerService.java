@@ -47,10 +47,7 @@ public class SallerService implements GeneralInformation<Saller> {
             System.out.println("Tài khoản của bạn đã bị khóa "+object.getLockDuration()+" ngay");
             return;
         }
-        if (adminService.isLocked(object)) {
-            System.out.println("Tài khoản của bạn đã bị khóa " + object.getLockDuration() + " ngay");
-            return;
-        }
+
         boolean hasOrders = false;
         for (Map.Entry<Integer, Order> entry : Database.deliveredMap.entrySet()) {
             if (object.getId() == entry.getValue().getIdSeller()) {
@@ -71,10 +68,7 @@ public class SallerService implements GeneralInformation<Saller> {
             return;
         }
 
-        if (adminService.isLocked(object)) {
-            System.out.println("Tài khoản của bạn đã bị khóa " + object.getLockDuration() + " ngay");
-            return;
-        }
+
         if (Database.abortMap.isEmpty()) {
             System.out.println("Không có đơn nào da huy");
             return;
@@ -178,7 +172,8 @@ public class SallerService implements GeneralInformation<Saller> {
         boolean found = false;
         for (Map.Entry<Integer, Food> entry : Database.menuMap.entrySet()) {
             if (entry.getValue().getIdSaller() == saller.getId()) {
-                System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
+                System.out.println("Value: " + entry.getValue());
+                entry.getValue().setRateStars(simpleReview(entry.getValue().getId()));
                 found = true; // Có ít nhất một món khớp với idSaller
             }
         }
@@ -358,13 +353,14 @@ public class SallerService implements GeneralInformation<Saller> {
         boolean check = false;
 
         do {
-            if (Database.orderMap.get(orderId) != null) {
+            if (Database.orderMap.get(orderId) != null && Database.orderMap.get(orderId).getState().getStateName().equals("Chờ xác nhận")) {
                 Order order = Database.orderMap.get(orderId);
                     handleOrderChoice(scanner, order);
                 check=true;
 
             } else {
-                System.out.println("Không tìm thấy đơn hàng với mã " + orderId + ". Vui lòng nhập lại.");
+                System.out.println("Không tìm thấy đơn hàng với mã " + orderId );
+                return;
             }
         }while (!check);
 
@@ -394,6 +390,34 @@ public class SallerService implements GeneralInformation<Saller> {
                         break;
                 }
         }
+
+        //Xu ly danh gia don
+    public double simpleReview(int idFood){
+        int countOenStarts =0, countTowStars = 0, countThreeStars = 0,countFourStarts=0, countFiveStars = 0;
+        double generalAssessment=0, count=0;
+        for(Map.Entry<Integer,Feedback> entry :Database.feedbackMap.entrySet()){
+            if (entry.getValue().getIdFood()==idFood) {
+                if (entry.getValue().getReview().equals(Review.ONESTARS)) {
+                    countOenStarts++;
+                } else if (entry.getValue().getReview().equals(Review.TWOSTARS)) {
+                    countTowStars++;
+                } else if (entry.getValue().getReview().equals(Review.THREESTARS)) {
+                    countThreeStars++;
+                } else if (entry.getValue().getReview().equals(Review.FOURSTARS)) {
+                    countFourStarts++;
+                } else {
+                    countFiveStars++;
+                }
+                count++;
+            }
+        }
+        if (count==0){
+            return 0;
+        }
+        generalAssessment=(countOenStarts+countTowStars*2+countThreeStars*3+countFourStarts*4+countFiveStars*5)/count;
+        generalAssessment = Math.round(generalAssessment*10.0)/10.0;
+        return generalAssessment;
+    }
 
     public Saller intputSaller(Scanner scanner, User user){
        String name = getInputName(scanner);

@@ -38,6 +38,7 @@ public class ShipperService implements GeneralInformation<Shipper> {
     }
 //Ham xem don giao thanh cong
     @Override
+
     public void displayDeliveredState(Shipper object) {
         if (adminService.isLockedShipper(object)){
             System.out.println("Tài khoản của bạn đã bị khóa "+object.getLockDuration()+" ngay");
@@ -47,6 +48,8 @@ public class ShipperService implements GeneralInformation<Shipper> {
             System.out.println("Ko co don hang nhap!");
             return;
         }
+
+
         boolean hasOrders = false;
         for (Map.Entry<Integer,Order> entry : Database.deliveredMap.entrySet()){
             if (entry.getValue().getIdShipper()==object.getId()){
@@ -69,6 +72,8 @@ public class ShipperService implements GeneralInformation<Shipper> {
             System.out.println("Không có đơn nào da huy");
             return;
         }
+
+
         boolean hasOrders = false;
         for (Map.Entry<Integer, Order> entry : Database.abortMap.entrySet()) {
             if (object.getId() == entry.getValue().getIdShipper()) {
@@ -195,7 +200,6 @@ public class ShipperService implements GeneralInformation<Shipper> {
                     order.setState(new CancelledState()); // Chuyển trạng thái sang "Đã hủy"
                     System.out.println("Đơn hàng " + order.getId() + " đã bị hủy.");
                     Database.adminList.get(1).setMoney(Database.adminList.get(1).getMoney().add(BigDecimal.valueOf(Utils.floorFee)));
-                    Customer customer = Database.customerMap.get(order.getIdCustomer());
                     if (order.getTotalAmount().compareTo(BigDecimal.ZERO)==0){
                         shipper.setMoney(shipper.getMoney().add(BigDecimal.valueOf(order.getSumShip())));
                     }

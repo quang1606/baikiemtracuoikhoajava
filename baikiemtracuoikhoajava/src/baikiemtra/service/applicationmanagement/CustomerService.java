@@ -117,7 +117,7 @@ public class CustomerService implements GeneralInformation<Customer> {
     //Ham xem binh luan
     public void seeComments(Scanner scanner){
         if ( Database.feedbackMap.isEmpty()){
-            System.out.println("Ko co don hang !");
+            System.out.println("Ko co danh gia hang !");
             return;
         }
         System.out.println("Nhap id mon an ban can xem binh luan");
@@ -270,13 +270,19 @@ public class CustomerService implements GeneralInformation<Customer> {
 
     //Ham huy don hang
     public void cancelOrder(Scanner scanner, Customer customer){
-        if (displayAwaitingPickupState(customer)){
+
+        if (displayPendingConfirmationState(customer)){
             System.out.println("Nhap id don hang de huy");
             int id = Utils.inputInteger(scanner);
             if (Database.orderMap.get(id) != null) {
                 Order order = Database.orderMap.get(id);
                 order.setState(new  CancelledState());
                 System.out.println("Đơn hàng " + order.getId() + " đã bị hủy.");
+                if(order.getTotalAmount().compareTo(BigDecimal.ZERO)==0){
+                    customer.setMoney(customer.getMoney().add(order.getTotalAmount()));
+                    Saller saller =Database.sallerMap.get(order.getIdSeller());
+                    saller.setMoney(saller.getMoney().subtract(order.getFoodBill()));
+                }
                 Database.abortMap.put(order.getId(),order);
                 Database.orderMap.remove(order.getId());
             } else {
@@ -288,12 +294,12 @@ public class CustomerService implements GeneralInformation<Customer> {
     }
 
 
-    //Kiem tra xem nhung don nao dang cho lay
-    private boolean displayAwaitingPickupState(Customer customer) {
+    //Kiem tra xem nhung don nao dang cho xac nhan
+    private boolean displayPendingConfirmationState(Customer customer) {
 
         List<Order> newOrder = new ArrayList<>();
         for (Map.Entry<Integer, Order> entry : Database.orderMap.entrySet()) {
-            if (customer.getId() == entry.getValue().getIdSeller() && entry.getValue().getState().getStateName().equals("Chờ lấy hàng")) {
+            if (customer.getId() == entry.getValue().getIdCustomer() && entry.getValue().getState().getStateName().equals("Chờ xác nhận")) {
                 System.out.println(entry.getValue());
                 newOrder.add(entry.getValue());
             }
@@ -421,6 +427,9 @@ public class CustomerService implements GeneralInformation<Customer> {
                     Database.draftOrderMap.remove(draftOder.getId());
                 }
                 break;
+            default:
+                System.out.println("Lua chon ko hop le! Ban da thoat");
+                break;
         }
     }
 
@@ -472,13 +481,50 @@ public class CustomerService implements GeneralInformation<Customer> {
                 nearestSearch(scanner,name, customer);
                 break;
             case 2:
+                searchBySales(name,customer);
 
                 break;
             case 3:
-
+                searchByRating(name,customer);
                 break;
             default:
                 System.out.println("Lua ch on khong hop le");
+        }
+    }
+
+    //Ham xap xep theo luot ban t coa xuong thap
+    public void searchBySales(String dishName, Customer customer){
+        List<Food> foods = new ArrayList<>();
+
+        // Lọc  món ăn tương ứng với dishName
+        for (Food menu : Database.menuMap.values()) {
+            if (menu.getName().toLowerCase().contains(dishName.toLowerCase())) {
+                    foods.add(menu);
+            }
+        }
+        if (!foods.isEmpty()) {
+            foods.sort(Comparator.comparing(Food::getQuantitySold).reversed());
+        }
+        for (Food menu : foods){
+            System.out.println(menu);
+        }
+    }
+
+    ///Ham xap xep danh gia giam dan
+    public void searchByRating(String dishName, Customer customer){
+        List<Food> foods = new ArrayList<>();
+
+        // Lọc  món ăn tương ứng với dishName
+        for (Food menu : Database.menuMap.values()) {
+            if (menu.getName().toLowerCase().contains(dishName.toLowerCase())) {
+                foods.add(menu);
+            }
+        }
+        if (!foods.isEmpty()) {
+            foods.sort(Comparator.comparing(Food::getRateStars).reversed());
+        }
+        for (Food menu : foods){
+            System.out.println(menu);
         }
     }
 
@@ -495,11 +541,12 @@ public class CustomerService implements GeneralInformation<Customer> {
                 Saller saller = Database.sallerMap.get(entry.getValue().getIdSaller());
                 double distance = Utils.calculateDistance(customer.getLatitude(), customer.getLongitude(),
                         saller.getLatitude(), saller.getLongitude());
+                entry.getValue().setRateStars(sallerService.simpleReview(entry.getValue().getId()));
                 System.out.println("Saller ID: " + saller.getId() +
                         " - Shop: " + saller.getName() +
                         " - Menu ID: " + entry.getValue().getId() +
                         " - Món ăn: " + entry.getValue().getName() +
-                        " - Số lượng: " + entry.getValue().getQuantitySold() +
+                        " - Số lượng da ban: " + entry.getValue().getQuantitySold() +
                         " - Giá: " + entry.getValue().getPrice() +
                         " - Danh gia: " + entry.getValue().getRateStars() +
                         " - Khoảng cách: " + distance + " km");

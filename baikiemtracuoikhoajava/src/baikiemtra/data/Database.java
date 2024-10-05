@@ -55,10 +55,10 @@ public static final Map<Integer,Saller> accountLockSeller = new HashMap<>();
 
 
     // Thêm dữ liệu vào shipperMap
-    Database.shipperMap.put(8, new Shipper("shipper1", "Password1@", "shipper1@gmail.com", Role.SHIPPER, "Shipper A", 105.85, 21.15));
-    userMap.put("shipper1",shipperMap.get(8));
-    Database.shipperMap.put(9, new Shipper("shipper2", "Password2@", "shipper2@gmail.com", Role.SHIPPER, "Shipper B", 106.00, 21.25));
-    userMap.put("shipper2",shipperMap.get(9));
+    Database.shipperMap.put(9, new Shipper("shipper1", "Password1@", "shipper1@gmail.com", Role.SHIPPER, "Shipper A", 105.85, 21.15));
+    userMap.put("shipper1",shipperMap.get(9));
+    Database.shipperMap.put(10, new Shipper("shipper2", "Password2@", "shipper2@gmail.com", Role.SHIPPER, "Shipper B", 106.00, 21.25));
+    userMap.put("shipper2",shipperMap.get(10));
     //Them du lieu menu
 
     menuMap.put(1, new Food("Coffee", TypeOfFood.BEVERAGE, 25000, 2));
