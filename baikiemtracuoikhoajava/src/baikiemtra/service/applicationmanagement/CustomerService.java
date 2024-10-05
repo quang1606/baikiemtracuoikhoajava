@@ -107,10 +107,24 @@ public class CustomerService implements GeneralInformation<Customer> {
         System.out.println("Thông tin tìm kiếm dựa trên " + name + " là:");
         boolean found = basicSearch(scanner, name, customer);
         if (found) {
-            String choice ;
             searchFilter(scanner, name, customer);
         } else {
             System.out.println("Không cần tìm kiếm thêm bộ lọc vì không tìm thấy món ăn.");
+        }
+    }
+
+    //Tim kiem theo the loai
+    public void searchByCategory(Scanner scanner,Customer customer){
+        TypeOfFood typeOfFood= searchCategory(scanner);
+        if (typeOfFood!=null){
+            for (Map.Entry<Integer,Food> entry : Database.menuMap.entrySet()){
+                if (entry.getValue().getTypeOfFood().equals(typeOfFood)){
+                    System.out.println(entry.getValue());
+                }
+            }
+            searchFilterCategory(scanner,customer,typeOfFood);
+        }else {
+            System.out.println("Khong tim thay the loai");
         }
     }
 
@@ -488,8 +502,52 @@ public class CustomerService implements GeneralInformation<Customer> {
                 searchByRating(name,customer);
                 break;
             default:
-                System.out.println("Lua ch on khong hop le");
+                System.out.println("Lua chon khong hop le");
         }
+    }
+
+
+    //Ham bo loc
+    private void searchFilterCategory(Scanner scanner,Customer customer,TypeOfFood typeOfFood){
+        System.out.println("Ban tim do an theo: ");
+        System.out.println("1 - Gan nhat");
+        System.out.println("2 - Ban chay ");
+        System.out.println("3 - Danh gia cao ");
+        int choice = Utils.inputInteger(scanner);
+        switch (choice){
+            case 1:
+                nearestSearchCategory(typeOfFood,customer);
+                break;
+            case 2:
+                searchBySalesCategory(typeOfFood,customer);
+                break;
+            case 3:
+                searchByRatingCategory(typeOfFood,customer);
+                break;
+            default:
+                System.out.println("Lua chon khong hop le!");
+        }
+    }
+
+    //Ham lua chon the loai tim kiem
+    private TypeOfFood searchCategory(Scanner scanner){
+        TypeOfFood typeOfFood=null;
+        System.out.println("Tim theo the loai: ");
+        System.out.println("1 - Do an");
+        System.out.println("2 - Do uong");
+        int choice = Utils.inputInteger(scanner);
+        switch (choice){
+            case 1:
+                typeOfFood = TypeOfFood.BEVERAGE;
+                break;
+            case 2:
+                typeOfFood =TypeOfFood.DRINKS;
+                break;
+            default:
+                System.out.println("Lua chon khong hop le:");
+                break;
+        }
+        return typeOfFood;
     }
 
     //Ham xap xep theo luot ban t coa xuong thap
@@ -562,7 +620,7 @@ public class CustomerService implements GeneralInformation<Customer> {
     }
 
 
-    //Ham tim kiem mon an o gan
+    //Ham tim kiem  mon an o gan
     private void nearestSearch(Scanner scanner, String dishName, Customer customer) {
         List<Saller> sallers = new ArrayList<>();
 
@@ -596,6 +654,81 @@ public class CustomerService implements GeneralInformation<Customer> {
             }
         }
     }
+
+    //Ham tim kiem the loai  mon an o gan
+    private void nearestSearchCategory( TypeOfFood typeOfFood, Customer customer) {
+        List<Saller> sallers = new ArrayList<>();
+
+        // Lọc người bán có món ăn tương ứng với dishName
+        for (Food menu : Database.menuMap.values()) {
+            if (menu.getTypeOfFood().equals(typeOfFood)) {
+                Saller saller = Database.sallerMap.get(menu.getIdSaller());
+                if (!sallers.contains(saller)) {
+                    sallers.add(saller); // Thêm người bán nếu chưa tồn tại trong danh sách
+                }
+            }
+        }
+        // Sắp xếp theo khoảng cách
+        sallers.sort(Comparator.comparingDouble(saller ->
+                Utils.calculateDistance(customer.getLatitude(), customer.getLongitude(), saller.getLatitude(), saller.getLongitude()))
+        );
+
+        // Hiển thị thông tin
+        for (Saller saller : sallers) {
+            for (Food menu : Database.menuMap.values()) {
+                if (menu.getIdSaller() == saller.getId() && menu.getTypeOfFood().equals(typeOfFood)) {
+                    double distance = Utils.calculateDistance(customer.getLatitude(), customer.getLongitude(), saller.getLatitude(), saller.getLongitude());
+                    System.out.println("Saller ID: " + saller.getId() +
+                            " - Loai mon an: "+menu.getTypeOfFood() +
+                            " - Shop: " + saller.getName() +
+                            " - Menu ID: " + menu.getId() +
+                            " - Món ăn: " + menu.getName() +
+                            " - Số lượng: " + menu.getQuantitySold() +
+                            " - Giá: " + menu.getPrice() +
+                            " - Khoảng cách: " + distance + " km");
+                }
+            }
+        }
+    }
+
+    //Ham loc the loai mon an theo so luong ban
+    public void searchBySalesCategory(TypeOfFood typeOfFood, Customer customer){
+        List<Food> foods = new ArrayList<>();
+
+        // Lọc  món ăn tương ứng với dishName
+        for (Food menu : Database.menuMap.values()) {
+            if (menu.getTypeOfFood().equals(typeOfFood)) {
+                foods.add(menu);
+            }
+        }
+        if (!foods.isEmpty()) {
+            foods.sort(Comparator.comparing(Food::getQuantitySold).reversed());
+        }
+        for (Food menu : foods){
+            System.out.println(menu);
+        }
+    }
+
+    //Ham loc the loai mon theo danh gia giam dan
+    public void searchByRatingCategory(TypeOfFood typeOfFood, Customer customer){
+        List<Food> foods = new ArrayList<>();
+
+        // Lọc  món ăn tương ứng với dishName
+        for (Food menu : Database.menuMap.values()) {
+            if (menu.getTypeOfFood().equals(typeOfFood)) {
+                foods.add(menu);
+            }
+        }
+        if (!foods.isEmpty()) {
+            foods.sort(Comparator.comparing(Food::getRateStars).reversed());
+        }
+        for (Food menu : foods){
+            System.out.println(menu);
+        }
+    }
+
+
+
 
     //Ham nhap du lieu cho customer
     public Customer inputCustomer(Scanner scanner, User user) {

@@ -22,7 +22,7 @@ public static final Map<Integer,Saller> accountLockSeller = new HashMap<>();
  public static  final Map<Integer,Admin> adminList = new HashMap<>();
 
   static {
-    adminList.put(1,new Admin("admin", "admin@123", "ADMIN",Role.ADMIN,"Quang"));
+    adminList.put(1,new Admin("admin", "1", "ADMIN",Role.ADMIN,"Quang"));
     userMap.put("admin",adminList.get(1));
 // Thêm dữ liệu vào sallerMap và đồng thời thêm vào userMap
     sallerMap.put(2, new Saller("saller1", "Password1@", "saller1@gmail.com", Role.SALLER, "Shop A", 105.80, 21.00, true));

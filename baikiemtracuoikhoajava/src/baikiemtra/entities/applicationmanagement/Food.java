@@ -90,7 +90,7 @@ public class Food {
                 ", Giá: " + price + " VND" +
                 ", ID của người bán: " + idSaller +
                 ", Số lượng đã bán: " + quantitySold +
-                ", Đánh giá sản phẩm: " + rateStars ;
+                ", Đánh giá sản phẩm: " + getRateStars();
     }
 
 }

@@ -95,7 +95,7 @@ public class MenuCustomer {
                 customerService.searchMenu(scanner,customer);
                 break;
             case 2:
-
+                customerService.searchByCategory(scanner,customer);
                 break;
             default:
                 System.out.println("Lua chon khong hop le:");

@@ -172,8 +172,9 @@ public class SallerService implements GeneralInformation<Saller> {
         boolean found = false;
         for (Map.Entry<Integer, Food> entry : Database.menuMap.entrySet()) {
             if (entry.getValue().getIdSaller() == saller.getId()) {
-                System.out.println("Value: " + entry.getValue());
                 entry.getValue().setRateStars(simpleReview(entry.getValue().getId()));
+                System.out.println("Value: " + entry.getValue());
+                
                 found = true; // Có ít nhất một món khớp với idSaller
             }
         }
