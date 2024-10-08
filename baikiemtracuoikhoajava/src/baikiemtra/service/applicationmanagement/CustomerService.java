@@ -30,7 +30,7 @@ public class CustomerService implements GeneralInformation<Customer> {
     }
 
     @Override
-    public void UpdateInformation(Scanner scanner, Customer object) {
+    public void updateInformation(Scanner scanner, Customer object) {
         object.setName(getInputName(scanner));
         object.setLongitude(getInputLongitude(scanner));
         object.setLatitude(getInputLatitude(scanner));
@@ -57,7 +57,7 @@ public class CustomerService implements GeneralInformation<Customer> {
     }
 //Ham don hang da huy
     @Override
-    public void CancelledState(Customer object) {
+    public void cancelledState(Customer object) {
         if ( Database.abortMap.isEmpty()){
             System.out.println("Ko co don hang nhap!");
             return;
@@ -169,10 +169,10 @@ public class CustomerService implements GeneralInformation<Customer> {
             } else {
                 System.out.println("Khong co voucher, voucher khong hop le!");
             }
-            PaymentType(scanner, order, customer, draftOder,voucherValue);
+            paymentType(scanner, order, customer, draftOder,voucherValue);
 
         }else {
-            System.out.println("So luong ko hop le hoac ko co san pham");
+            System.out.println("ko co san pham");
         }
     }
 
@@ -231,7 +231,7 @@ public class CustomerService implements GeneralInformation<Customer> {
             } else {
                 System.out.println("Khong co voucher, voucher khong hop le!");
             }
-            PaymentType(scanner, order, customer, draftOder,voucherValue);
+            paymentType(scanner, order, customer, draftOder,voucherValue);
         }else {
             System.out.println("So luong ko hop le hoac ko co san pham");
         }
@@ -279,7 +279,7 @@ public class CustomerService implements GeneralInformation<Customer> {
         System.out.println("Nhap so tien ban muon nap: ");
         String input = scanner.nextLine();
         BigDecimal recharge = new BigDecimal(input);
-        RechargePurchases(scanner,customer,recharge);
+        rechargePurchases(scanner,customer,recharge);
     }
 
     //Ham huy don hang
@@ -327,7 +327,7 @@ public class CustomerService implements GeneralInformation<Customer> {
 
 
 
-    private void RechargePurchases(Scanner scanner,Customer customer, BigDecimal recharge){
+    private void rechargePurchases(Scanner scanner,Customer customer, BigDecimal recharge){
         customer.setMoney(recharge);
     }
 
@@ -381,6 +381,7 @@ public class CustomerService implements GeneralInformation<Customer> {
             }
         }
         if (count>0) {
+            while (true){
             System.out.println("Moi ban nhap vao id voucher muon chon: ");
             int id = Utils.inputInteger(scanner);
             Voucher voucher = Database.voucherMap.get(id);
@@ -397,6 +398,7 @@ public class CustomerService implements GeneralInformation<Customer> {
             } else {
                 System.out.println("Voucher không hợp lệ hoặc không tìm thấy.");
             }
+            }
         }else {
             System.out.println("Khong co voucher");
         }
@@ -406,7 +408,7 @@ public class CustomerService implements GeneralInformation<Customer> {
 
 
     //Ham chon kieu thanh toan
-    private void PaymentType(Scanner scanner, Order order,Customer customer,DraftOder draftOder,Voucher voucher){
+    private void paymentType(Scanner scanner, Order order,Customer customer,DraftOder draftOder,Voucher voucher){
         System.out.println("Moi ban cho kieu thanh toan!");
         System.out.println("1 - Thanh toan bang tien mat:" );
         System.out.println("2 - Thanh toan bang chuyen khoan");
@@ -419,11 +421,10 @@ public class CustomerService implements GeneralInformation<Customer> {
             case 2:
                 if (order.getTotalAmount().compareTo(customer.getMoney()) > 0){
                     System.out.println("Tai khoan khong du ban can nap them"+order.getTotalAmount().subtract(customer.getMoney())+"k");
-                    RechargePurchases(scanner,customer,order.getTotalAmount().subtract(customer.getMoney()));
+                    rechargePurchases(scanner,customer,order.getTotalAmount().subtract(customer.getMoney()));
                     customer.setMoney(customer.getMoney().subtract(order.getTotalAmount()));
                     System.out.println("Ban da thanh toan thanh cong don hang");
                     order.nextState();
-
                     if (voucher!=null) {
                         voucher.setQuantity(voucher.getQuantity() - 1);
                     }
@@ -435,7 +436,11 @@ public class CustomerService implements GeneralInformation<Customer> {
                 }else {
                     customer.setMoney(customer.getMoney().subtract(order.getTotalAmount()));
                     System.out.println("Ban da thanh toan thanh cong don hang");
-                    voucher.setQuantity(voucher.getQuantity()-1);
+                    if (voucher!=null) {
+                        voucher.setQuantity(voucher.getQuantity() - 1);
+                    }
+                    Saller saller =Database.sallerMap.get(order.getIdSeller());
+                    saller.setMoney(saller.getMoney().add(order.getFoodBill()));
                     order.setTotalAmount(BigDecimal.ZERO);
                     Database.orderMap.put(order.getId(),order);
                     Database.draftOrderMap.remove(draftOder.getId());
@@ -477,8 +482,6 @@ public class CustomerService implements GeneralInformation<Customer> {
             DraftOder draftOder =new DraftOder(saller.getName(),menu.getName(),customer.getId(),quantity,saller.getId(),idMenu);
             Database.draftOrderMap.put(draftOder.getId(),draftOder);
             return draftOder;
-        }else {
-            System.out.println("Khong tim thay san pham");
         }
         return  null;
     }
@@ -726,8 +729,6 @@ public class CustomerService implements GeneralInformation<Customer> {
             System.out.println(menu);
         }
     }
-
-
 
 
     //Ham nhap du lieu cho customer

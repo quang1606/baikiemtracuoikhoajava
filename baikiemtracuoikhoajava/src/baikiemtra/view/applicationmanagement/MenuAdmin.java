@@ -12,9 +12,9 @@ AdminService adminService = AdminService.getInstance();
     public void displayAdmin(Scanner scanner, User user){
         do {
             System.out.println("Moi ban chon!");
-            System.out.println("1 - Khoa tai khoan ban hang");
+            System.out.println("1 - Khoa tai khoan ban hang co thoi han");
             System.out.println("2 - Mo tai khoan ban hang");
-            System.out.println("3 - Khoa tai khoan lai xe");
+            System.out.println("3 - Khoa tai khoan lai xe co thoi han");
             System.out.println("4 - Mo tai khoan lai xe");
             System.out.println("5 - Rut tien khoi he thong");
             System.out.println("6 -Dang xuat");

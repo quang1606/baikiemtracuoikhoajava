@@ -39,11 +39,11 @@ public class MenuLogin {
             case 1:
                 User user =userService.login(scanner);
                 if(user!=null){
-                    if(user.getRole().equals(Role.ADMIN)){
+                    if((Role.ADMIN).equals(user.getRole())){
                         menuAdmin.displayAdmin(scanner,user);
-                    }else if (user.getRole().equals(Role.SALLER)){
+                    }else if ((Role.SALLER).equals(user.getRole())){
                         menuSaller.displayShop(scanner,user);
-                    }else if (user.getRole().equals(Role.CUSTOMER)){
+                    }else if ((Role.CUSTOMER).equals(user.getRole())){
                         menuCustomer.displayCustomer(scanner,user);
                     }else {
                         menuShipper.displayShipper(scanner,user);

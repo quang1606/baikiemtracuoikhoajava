@@ -55,7 +55,7 @@ public class MenuSaller {
                 sallerService.displayDeliveredState(saller);
                 break;
             case 4:
-                sallerService.CancelledState(saller);
+                sallerService.cancelledState(saller);
                 break;
             case 5:
                 displayShop(scanner,user);
@@ -70,7 +70,7 @@ public class MenuSaller {
         Saller saller = Database.sallerMap.get(user.getId());
         switch (choose){
             case 1:
-                sallerService.UpdateInformation(scanner,saller);
+                sallerService.updateInformation(scanner,saller);
                 break;
             case 2:
                 sallerService.addFood(scanner,saller);
@@ -97,7 +97,7 @@ public class MenuSaller {
                 displayOrderStatus(scanner,saller,user);
                 break;
             case 10:
-                sallerService.SeeOrderReviews(saller);
+                sallerService.seeOrderReviews(saller);
                 break;
 
             case 11:

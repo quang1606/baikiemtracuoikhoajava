@@ -33,7 +33,7 @@ public class SallerService implements GeneralInformation<Saller> {
 
     //Ham update lai thong tin quan
     @Override
-    public void UpdateInformation(Scanner scanner, Saller object) {
+    public void updateInformation(Scanner scanner, Saller object) {
 
         object.setName(getInputName(scanner));
         object.setLongitude(getInputLongitude(scanner));
@@ -62,7 +62,7 @@ public class SallerService implements GeneralInformation<Saller> {
 
     //Ham xem don da huy
     @Override
-    public void CancelledState(Saller object) {
+    public void cancelledState(Saller object) {
         if (adminService.isLocked(object)){
             System.out.println("Tài khoản của bạn đã bị khóa "+object.getLockDuration()+" ngay");
             return;
@@ -325,7 +325,7 @@ public class SallerService implements GeneralInformation<Saller> {
 
 
     //Xem danh gia don hang cua shop
-    public void SeeOrderReviews(Saller saller){
+    public void seeOrderReviews(Saller saller){
         if (adminService.isLocked(saller)){
             System.out.println("Tài khoản của bạn đã bị khóa "+saller.getLockDuration()+" ngay");
             return;

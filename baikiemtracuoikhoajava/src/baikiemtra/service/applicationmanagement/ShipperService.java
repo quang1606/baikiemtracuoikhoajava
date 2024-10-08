@@ -29,7 +29,7 @@ public class ShipperService implements GeneralInformation<Shipper> {
     }
 
     @Override
-    public void UpdateInformation(Scanner scanner, Shipper object) {
+    public void updateInformation(Scanner scanner, Shipper object) {
         object.setName(getInputName(scanner));
         object.setLatitude(getInputLatitude(scanner));
         object.setLongitude(getInputLongitude(scanner));
@@ -63,7 +63,7 @@ public class ShipperService implements GeneralInformation<Shipper> {
     }
 //Ham Xem don hang da huy
     @Override
-    public void CancelledState(Shipper object) {
+    public void cancelledState(Shipper object) {
         if (adminService.isLockedShipper(object)){
             System.out.println("Tài khoản của bạn đã bị khóa "+object.getLockDuration()+" ngay");
             return;
@@ -111,8 +111,8 @@ public class ShipperService implements GeneralInformation<Shipper> {
         } while (true); // Tiếp tục yêu cầu cho đến khi có đầu vào hợp lệ
     }
 
-    //Ham hien thi danh sach cac don o gan
-    public void NearbyOrderList(Shipper shipper){
+    //Ham hien thi danh sach cac don o gann
+    public void nearbyOrderList(Shipper shipper){
         if (adminService.isLockedShipper(shipper)){
             System.out.println("Tài khoản của bạn đã bị khóa "+shipper.getLockDuration()+" ngay");
             return;

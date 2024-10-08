@@ -55,7 +55,7 @@ public class MenuCustomer {
         Customer customer =  Database.customerMap.get(user.getId());
         switch (choice){
             case 1:
-                customerService.UpdateInformation(scanner, customer);
+                customerService.updateInformation(scanner, customer);
                 break;
             case 2:
                 displaySearch(scanner,customer);
@@ -111,7 +111,7 @@ public class MenuCustomer {
                 customerService.displayDeliveredState(customer);
                 break;
             case 3:
-                customerService.CancelledState(customer);
+                customerService.cancelledState(customer);
                 break;
             case 4:
                 customerService.feedback(customer,scanner);

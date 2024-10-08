@@ -33,10 +33,10 @@ public class MenuShipper {
         Shipper shipper = Database.shipperMap.get(user.getId());
         switch (choice) {
             case 1:
-                shipperService.UpdateInformation(scanner,shipper);
+                shipperService.updateInformation(scanner,shipper);
                 break;
             case 2:
-                shipperService.NearbyOrderList(shipper);
+                shipperService.nearbyOrderList(shipper);
                 break;
             case 3:
                 shipperService.orderConfirmation(scanner,shipper);
@@ -48,7 +48,7 @@ public class MenuShipper {
                 shipperService.displayDeliveredState(shipper);
                 break;
             case 6:
-                shipperService.CancelledState(shipper);
+                shipperService.cancelledState(shipper);
                 break;
 
             case 7:
