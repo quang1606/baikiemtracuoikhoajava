@@ -381,28 +381,25 @@ public class CustomerService implements GeneralInformation<Customer> {
             }
         }
         if (count>0) {
-            while (true){
-            System.out.println("Moi ban nhap vao id voucher muon chon: ");
-            int id = Utils.inputInteger(scanner);
-            Voucher voucher = Database.voucherMap.get(id);
-            // Kiểm tra voucher có tồn tại, thuộc về seller và nằm trong thời gian hợp lệ
-            if (voucher != null && voucher.getIdSaller() == saller.getId()) {
-                // Lấy thời gian hiện tại
-                LocalDateTime currentTime = LocalDateTime.now();
-                // Kiểm tra thời gian hiện tại nằm trong khoảng từ startTime đến endTime
-                if (currentTime.isAfter(voucher.getStartTime()) && currentTime.isBefore(voucher.getEndTime())) {
-                    return voucher;
+            while (true) {
+                System.out.println("Moi ban nhap vao id voucher muon chon: ");
+                int id = Utils.inputInteger(scanner);
+                Voucher voucher = Database.voucherMap.get(id);
+                // Kiểm tra voucher có tồn tại, thuộc về seller và nằm trong thời gian hợp lệ
+                if (voucher != null && voucher.getIdSaller() == saller.getId()) {
+                    // Lấy thời gian hiện tại
+                    LocalDateTime currentTime = LocalDateTime.now();
+                    // Kiểm tra thời gian hiện tại nằm trong khoảng từ startTime đến endTime
+                    if (currentTime.isAfter(voucher.getStartTime()) && currentTime.isBefore(voucher.getEndTime())) {
+                        return voucher;
+                    } else {
+                        System.out.println("Voucher không hợp lệ trong thời gian hiện tại.");
+                        return null;
+                    }
                 } else {
-                    System.out.println("Voucher không hợp lệ trong thời gian hiện tại.");
+                    System.out.println("Voucher không hợp lệ hoặc không tìm thấy.");
                 }
-            } else {
-                System.out.println("Voucher không hợp lệ hoặc không tìm thấy.");
-            }
-            }
-        }else {
-            System.out.println("Khong co voucher");
-        }
-
+            }}
         return null;
     }
 
