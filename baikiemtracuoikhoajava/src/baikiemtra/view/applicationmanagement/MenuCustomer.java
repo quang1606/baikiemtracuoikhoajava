@@ -23,7 +23,8 @@ public class MenuCustomer {
             System.out.println("6 - Huy don hang:");
             System.out.println("7 - Nap tien");
             System.out.println("8 - Rut tien");
-            System.out.println("9 - Dang xuat");
+            System.out.println("9 -Lich su giao dich: ");
+            System.out.println("10 - Dang xuat");
             selectCustomer(scanner,user);
         }while (true);
 
@@ -80,10 +81,14 @@ public class MenuCustomer {
                 customerService.withdrawMoney(scanner,customer);
                 break;
             case 9:
+                customerService.selectTransactionHistory(customer);
+                break;
+            case 10:
                 user=null;
                 System.out.println("Ban da dang xuat thanh cong");
                 new  MenuLogin().displayMenuPreLogin(scanner);
                 break;
+
             default:
                 System.out.println("Lua chon khong hop le!");
         }

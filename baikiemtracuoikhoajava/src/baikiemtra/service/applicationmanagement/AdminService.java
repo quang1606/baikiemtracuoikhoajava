@@ -4,6 +4,7 @@ import baikiemtra.data.Database;
 import baikiemtra.entities.applicationmanagement.Admin;
 import baikiemtra.entities.applicationmanagement.Saller;
 import baikiemtra.entities.applicationmanagement.Shipper;
+import baikiemtra.entities.applicationmanagement.TransactionHistory;
 import baikiemtra.untils.Utils;
 
 import java.math.BigDecimal;
@@ -32,7 +33,9 @@ public class AdminService {
             return;
         }
         for (Map.Entry<Integer, Saller> entry : Database.sallerMap.entrySet()) {
-            System.out.println(entry.getValue());
+            if (entry.getValue().isAvailable()) {
+                System.out.println(entry.getValue());
+            }
         }
         System.out.println("Nhap vao id tai khoan muon khoa");
         int id = Utils.inputInteger(scanner);
@@ -102,7 +105,9 @@ public class AdminService {
             return;
         }
         for (Map.Entry<Integer, Shipper> entry : Database.shipperMap.entrySet()) {
-            System.out.println(entry.getValue());
+            if (entry.getValue().isAvailable()) {
+                System.out.println(entry.getValue());
+            }
         }
         System.out.println("Nhap vao id tai khoan muon khoa");
         int id = Utils.inputInteger(scanner);
@@ -182,12 +187,35 @@ public class AdminService {
             if (withdrawMoney.compareTo( admin.getMoney()) <= 0) {
                 System.out.println("Rút tiền thành công: " + withdrawMoney + " K");
                 admin.setMoney(admin.getMoney().subtract(withdrawMoney));
+                TransactionHistory transactionHistory2 = new TransactionHistory(LocalDateTime.now(), BigDecimal.ZERO.subtract(withdrawMoney));
+                Database.transactionHistory.put(transactionHistory2.getId(), transactionHistory2);
+                Database.transactionHistory.get(transactionHistory2.getId()).setIdAdmin(Database.adminList.get(1).getId());
                 return;
             } else {
                 System.out.println("Không đủ tiền, vui lòng nhập lại.");
             }
         } while (true); // Tiếp tục yêu cầu cho đến khi có đầu vào hợp lệ
 
+    }
+
+    //Hien thi lich su giao dich
+    public  void selectTransactionHistory(){
+        if ( Database.transactionHistory.isEmpty()){
+            System.out.println("Ko co giao dich !");
+            return;
+
+        }
+        boolean check= false;
+        for (Map.Entry<Integer,TransactionHistory> entry: Database.transactionHistory.entrySet()){
+            if(entry.getValue().getIdAdmin()== Database.adminList.get(1).getId()){
+                System.out.println(entry.getValue());
+                check = true;
+            }
+        }
+
+        if (!check){
+            System.out.println("Khong co giao dich");
+        }
     }
 
 }

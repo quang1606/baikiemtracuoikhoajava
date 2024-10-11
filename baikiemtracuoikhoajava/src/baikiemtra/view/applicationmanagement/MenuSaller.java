@@ -26,7 +26,8 @@ public class MenuSaller {
             System.out.println("9 - Trang thai don hang");
             System.out.println("10 - Xem danh gia don hang");
             System.out.println("11 - Rut tien");
-            System.out.println("12 -Dang xuat");
+            System.out.println("12 -Lich su giao dich: ");
+            System.out.println("13 -Dang xuat");
             selectShop(scanner,user);
         }while (true);
     }
@@ -104,6 +105,9 @@ public class MenuSaller {
                 sallerService.withdrawMoney(scanner,saller);
                 break;
             case 12:
+                sallerService.selectTransactionHistory(saller);
+                break;
+            case 13:
                 user=null;
                 System.out.println("Ban da dang xuat thanh cong");
                 new  MenuLogin().displayMenuPreLogin(scanner);

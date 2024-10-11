@@ -6,6 +6,7 @@ import baikiemtra.entities.login.User;
 import baikiemtra.untils.Utils;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class ShipperService implements GeneralInformation<Shipper> {
@@ -103,12 +104,35 @@ public class ShipperService implements GeneralInformation<Shipper> {
             if (withdrawMoney.compareTo( object.getMoney()) <= 0 && withdrawMoney.compareTo(BigDecimal.ZERO)>0) {
                 System.out.println("Rút tiền thành công: " + withdrawMoney + " K");
                 object.setMoney(object.getMoney().subtract(withdrawMoney));
+                TransactionHistory transactionHistory2 = new TransactionHistory(LocalDateTime.now(), BigDecimal.ZERO.subtract(withdrawMoney));
+                Database.transactionHistory.put(transactionHistory2.getId(), transactionHistory2);
+                Database.transactionHistory.get(transactionHistory2.getId()).setIdShipper(object.getId());
                 return;
 
             } else {
                 System.out.println("So tien khong hop le, vui lòng nhập lại.");
             }
         } while (true); // Tiếp tục yêu cầu cho đến khi có đầu vào hợp lệ
+    }
+
+    //Hien thi lich su giao dich
+    @Override
+    public void selectTransactionHistory(Shipper object) {
+        if ( Database.transactionHistory.isEmpty()){
+            System.out.println("Ko co giao dich !");
+            return;
+
+        }
+        boolean check= false;
+        for (Map.Entry<Integer,TransactionHistory> entry: Database.transactionHistory.entrySet()){
+            if(entry.getValue().getIdShipper()== object.getId()){
+                System.out.println(entry.getValue());
+                check =true;
+            }
+        }
+        if (!check){
+            System.out.println("khong co giao dich");
+        }
     }
 
     //Ham hien thi danh sach cac don o gann
@@ -185,25 +209,37 @@ public class ShipperService implements GeneralInformation<Shipper> {
                 case 1:
                     order.nextState();
                     System.out.println("Đơn hàng " + order.getId() + " đã  giao hang thanh cong.");
-                    Database.menuMap.get(order.getIdFood()).setQuantitySold(order.getQuantity());
+                    Database.menuMap.get(order.getIdFood()).setQuantitySold(order.getQuantity()+Database.menuMap.get(order.getIdFood()).getQuantitySold());
                     Voucher voucher= Database.voucherMap.get(order.getIdVoucher());
                     voucher.setQuantity(voucher.getQuantity()-1);
                     if (order.getTotalAmount().compareTo(BigDecimal.ZERO)==0){
                         shipper.setMoney(shipper.getMoney().add(BigDecimal.valueOf(order.getSumShip())));
+                        TransactionHistory transactionHistorySipper = new TransactionHistory(LocalDateTime.now(), BigDecimal.valueOf(order.getSumShip()));
+                        Database.transactionHistory.put(transactionHistorySipper.getId(), transactionHistorySipper);
+                        Database.transactionHistory.get(transactionHistorySipper.getId()).setIdShipper(shipper.getId());
                     }
                     shipper.setCount(0);
                     Database.adminList.get(1).setMoney(Database.adminList.get(1).getMoney().add(BigDecimal.valueOf(Utils.floorFee)));
+                    TransactionHistory transactionHistoryAdmin = new TransactionHistory(LocalDateTime.now(), (BigDecimal.valueOf(Utils.floorFee)));
+                    Database.transactionHistory.put(transactionHistoryAdmin.getId(), transactionHistoryAdmin);
+                    Database.transactionHistory.get(transactionHistoryAdmin.getId()).setIdAdmin(Database.adminList.get(1).getId());
                     Database.deliveredMap.put(order.getId(),order);
                     Database.orderMap.remove(order.getId());
                     break;
                 case 2:
                     order.setState(new CancelledState()); // Chuyển trạng thái sang "Đã hủy"
                     System.out.println("Đơn hàng " + order.getId() + " đã bị hủy.");
-                    Database.adminList.get(1).setMoney(Database.adminList.get(1).getMoney().add(BigDecimal.valueOf(Utils.floorFee)));
                     if (order.getTotalAmount().compareTo(BigDecimal.ZERO)==0){
                         shipper.setMoney(shipper.getMoney().add(BigDecimal.valueOf(order.getSumShip())));
+                        TransactionHistory transactionHistorySipper = new TransactionHistory(LocalDateTime.now(), BigDecimal.valueOf(order.getSumShip()));
+                        Database.transactionHistory.put(transactionHistorySipper.getId(), transactionHistorySipper);
+                        Database.transactionHistory.get(transactionHistorySipper.getId()).setIdShipper(shipper.getId());
                     }
                     shipper.setCount(0);
+                    Database.adminList.get(1).setMoney(Database.adminList.get(1).getMoney().add(BigDecimal.valueOf(Utils.floorFee)));
+                    TransactionHistory transactionHistoryAdminn = new TransactionHistory(LocalDateTime.now(), (BigDecimal.valueOf(Utils.floorFee)));
+                    Database.transactionHistory.put(transactionHistoryAdminn.getId(), transactionHistoryAdminn);
+                    Database.transactionHistory.get(transactionHistoryAdminn.getId()).setIdAdmin(Database.adminList.get(1).getId());
                     Database.abortMap.put(order.getId(),order);
                     Database.orderMap.remove(order.getId());
                     break;

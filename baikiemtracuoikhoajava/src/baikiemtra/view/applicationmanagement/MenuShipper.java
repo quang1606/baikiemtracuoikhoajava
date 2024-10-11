@@ -22,7 +22,8 @@ public class MenuShipper {
             System.out.println("5 - Lich su giao hang thanh cong");
             System.out.println("6 - Xem don hang da huy");
             System.out.println("7 - Rut tien");
-            System.out.println("8 -Dang xuat");
+            System.out.println("8 -Lich su giao dich: ");
+            System.out.println("9 -Dang xuat");
             selectShipper(scanner,user);
         }while (true);
 
@@ -54,8 +55,10 @@ public class MenuShipper {
             case 7:
                 shipperService.withdrawMoney(scanner,shipper);
                 break;
-
             case 8:
+                shipperService.selectTransactionHistory(shipper);
+                break;
+            case 9:
                 user=null;
                 System.out.println("Ban da dang xuat thanh cong");
                 new MenuLogin().displayMenuPreLogin(scanner);

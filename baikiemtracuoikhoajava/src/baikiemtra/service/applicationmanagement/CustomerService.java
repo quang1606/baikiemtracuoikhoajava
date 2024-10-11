@@ -91,12 +91,35 @@ public class CustomerService implements GeneralInformation<Customer> {
             if (withdrawMoney.compareTo( object.getMoney()) <= 0 && withdrawMoney.compareTo(BigDecimal.ZERO)>0) {
                 System.out.println("Rút tiền thành công: " + withdrawMoney + " K");
                 object.setMoney(object.getMoney().subtract(withdrawMoney));
+                TransactionHistory transactionHistory2 = new TransactionHistory(LocalDateTime.now(), BigDecimal.ZERO.subtract(withdrawMoney));
+                Database.transactionHistory.put(transactionHistory2.getId(), transactionHistory2);
+                Database.transactionHistory.get(transactionHistory2.getId()).setIdCustomer(object.getId());
                 return;
 
             } else {
                 System.out.println("So tien khong hop le, vui lòng nhập lại.");
             }
         } while (true); // Tiếp tục yêu cầu cho đến khi có đầu vào hợp lệ
+    }
+
+    //Hien thi lich su giao dich
+    @Override
+    public void selectTransactionHistory(Customer object) {
+        if ( Database.transactionHistory.isEmpty()){
+            System.out.println("Ko co giao dich !");
+            return;
+
+        }
+        boolean check= false;
+        for (Map.Entry<Integer,TransactionHistory> entry: Database.transactionHistory.entrySet()){
+            if(entry.getValue().getIdCustomer()== object.getId()){
+                System.out.println(entry.getValue());
+                check =true;
+            }
+        }
+        if (!check){
+            System.out.println("khong co giao dich");
+        }
     }
 
 
@@ -163,6 +186,7 @@ public class CustomerService implements GeneralInformation<Customer> {
             if (voucherValue!=null){
             double voucherValueReductionLevel= voucherValue.getReductionLevel();
                 order.setFoodBill(foodBill.subtract(BigDecimal.valueOf(voucherValueReductionLevel)));
+                order.setTotalAmount(totalAmount.subtract(BigDecimal.valueOf(voucherValueReductionLevel)));
                 order.setIdVoucher(voucherValue.getId());
                 System.out.println("Don hang da ap dung voucher giam " + voucherValue + "k");
                 System.out.println(order);
@@ -280,6 +304,9 @@ public class CustomerService implements GeneralInformation<Customer> {
         String input = scanner.nextLine();
         BigDecimal recharge = new BigDecimal(input);
         rechargePurchases(scanner,customer,recharge);
+        TransactionHistory transactionHistory2 = new TransactionHistory(LocalDateTime.now(),recharge);
+        Database.transactionHistory.put(transactionHistory2.getId(), transactionHistory2);
+        Database.transactionHistory.get(transactionHistory2.getId()).setIdCustomer(customer.getId());
     }
 
     //Ham huy don hang
@@ -288,7 +315,7 @@ public class CustomerService implements GeneralInformation<Customer> {
         if (displayPendingConfirmationState(customer)){
             System.out.println("Nhap id don hang de huy");
             int id = Utils.inputInteger(scanner);
-            if (Database.orderMap.get(id) != null) {
+            if (Database.orderMap.get(id) != null && Database.orderMap.get(id).getState().getStateName().equals("Chờ xác nhận")) {
                 Order order = Database.orderMap.get(id);
                 order.setState(new  CancelledState());
                 System.out.println("Đơn hàng " + order.getId() + " đã bị hủy.");
@@ -416,39 +443,74 @@ public class CustomerService implements GeneralInformation<Customer> {
                 Database.draftOrderMap.remove(draftOder.getId());
                 break;
             case 2:
-                if (order.getTotalAmount().compareTo(customer.getMoney()) > 0){
-                    System.out.println("Tai khoan khong du ban can nap them"+order.getTotalAmount().subtract(customer.getMoney())+"k");
-                    rechargePurchases(scanner,customer,order.getTotalAmount().subtract(customer.getMoney()));
+                if (order.getTotalAmount().compareTo(customer.getMoney()) > 0) {
+                    Saller saller = Database.sallerMap.get(order.getIdSeller());
+                    System.out.println("Tai khoan khong du ban can nap them " + order.getTotalAmount().subtract(customer.getMoney()) + "k");
+
+                    // Lưu lịch sử giao dịch customer cho phần thiếu
+                    TransactionHistory transactionHistory = new TransactionHistory(LocalDateTime.now(), order.getTotalAmount().subtract(customer.getMoney()));
+                    Database.transactionHistory.put(transactionHistory.getId(), transactionHistory);
+                    Database.transactionHistory.get(transactionHistory.getId()).setIdCustomer(customer.getId());
+
+                    // Nạp thêm tiền và thanh toán phần còn lại
+                    rechargePurchases(scanner, customer, order.getTotalAmount().subtract(customer.getMoney()));
                     customer.setMoney(customer.getMoney().subtract(order.getTotalAmount()));
                     System.out.println("Ban da thanh toan thanh cong don hang");
                     order.nextState();
-                    if (voucher!=null) {
+
+                    // Lưu lịch sử giao dịch customer sau khi thanh toán đầy đủ
+                    TransactionHistory transactionHistory2 = new TransactionHistory(LocalDateTime.now(), BigDecimal.ZERO.subtract(order.getTotalAmount()));
+                    Database.transactionHistory.put(transactionHistory2.getId(), transactionHistory2);
+                    Database.transactionHistory.get(transactionHistory2.getId()).setIdCustomer(customer.getId());
+
+                    if (voucher != null) {
                         voucher.setQuantity(voucher.getQuantity() - 1);
                     }
-                    Saller saller =Database.sallerMap.get(order.getIdSeller());
+
+                    // Lịch sử giao dịch seller
                     saller.setMoney(saller.getMoney().add(order.getFoodBill()));
+                    TransactionHistory transactionHistorySeller = new TransactionHistory(LocalDateTime.now(), order.getFoodBill());
+                    Database.transactionHistory.put(transactionHistorySeller.getId(), transactionHistorySeller);
+                    Database.transactionHistory.get(transactionHistorySeller.getId()).setIdSeller(saller.getId());
+
                     order.setTotalAmount(BigDecimal.ZERO);
-                    Database.orderMap.put(order.getId(),order);
+                    Database.orderMap.put(order.getId(), order);
                     Database.draftOrderMap.remove(draftOder.getId());
-                }else {
+
+                } else {
+                    // Khách hàng có đủ tiền, thanh toán đơn hàng ngay
                     customer.setMoney(customer.getMoney().subtract(order.getTotalAmount()));
                     System.out.println("Ban da thanh toan thanh cong don hang");
-                    if (voucher!=null) {
+                    order.nextState();
+                    // Lưu lịch sử giao dịch customer
+                    TransactionHistory transactionHistory2 = new TransactionHistory(LocalDateTime.now(), BigDecimal.ZERO.subtract(order.getTotalAmount()));
+                    Database.transactionHistory.put(transactionHistory2.getId(), transactionHistory2);
+                    Database.transactionHistory.get(transactionHistory2.getId()).setIdCustomer(customer.getId());
+
+                    if (voucher != null) {
                         voucher.setQuantity(voucher.getQuantity() - 1);
                     }
-                    Saller saller =Database.sallerMap.get(order.getIdSeller());
+
+                    // Lịch sử giao dịch seller
+                    Saller saller = Database.sallerMap.get(order.getIdSeller());
                     saller.setMoney(saller.getMoney().add(order.getFoodBill()));
+
+                    TransactionHistory transactionHistorySeller = new TransactionHistory(LocalDateTime.now(), order.getFoodBill());
+                    Database.transactionHistory.put(transactionHistorySeller.getId(), transactionHistorySeller);
+                    Database.transactionHistory.get(transactionHistorySeller.getId()).setIdSeller(saller.getId());
+
                     order.setTotalAmount(BigDecimal.ZERO);
-                    Database.orderMap.put(order.getId(),order);
+                    Database.orderMap.put(order.getId(), order);
                     Database.draftOrderMap.remove(draftOder.getId());
+
                 }
                 break;
+
             default:
                 System.out.println("Lua chon ko hop le! Ban da thoat");
                 break;
         }
     }
-
 
 
     //Ham tinh tien ship
@@ -471,8 +533,15 @@ public class CustomerService implements GeneralInformation<Customer> {
     private DraftOder productInspection(Scanner scanner ,Customer customer){
         System.out.println("Nhap id san pham: ");
         int idMenu = Utils.inputInteger(scanner);
-        System.out.println("Nhap so luong:");
-        int quantity = Utils.inputInteger(scanner);
+        int quantity;
+        do {
+            System.out.println("Nhap so luong:");
+            quantity = Utils.inputInteger(scanner);
+            if (quantity<0){
+                System.out.println("Nhap so luong ko hop le!");
+            }
+        }while (quantity<=0);
+
         Food menu = Database.menuMap.get(idMenu);
         if (menu!=null ){
             Saller saller = Database.sallerMap.get(menu.getIdSaller());
@@ -647,7 +716,8 @@ public class CustomerService implements GeneralInformation<Customer> {
                             " - Shop: " + saller.getName() +
                             " - Menu ID: " + menu.getId() +
                             " - Món ăn: " + menu.getName() +
-                            " - Số lượng: " + menu.getQuantitySold() +
+                            " - Số lượng da ban: " + menu.getQuantitySold() +
+                            " - Danh gia: " + menu.getRateStars() +
                             " - Giá: " + menu.getPrice() +
                             " - Khoảng cách: " + distance + " km");
                 }

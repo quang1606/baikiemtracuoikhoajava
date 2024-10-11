@@ -17,7 +17,8 @@ AdminService adminService = AdminService.getInstance();
             System.out.println("3 - Khoa tai khoan lai xe co thoi han");
             System.out.println("4 - Mo tai khoan lai xe");
             System.out.println("5 - Rut tien khoi he thong");
-            System.out.println("6 -Dang xuat");
+            System.out.println("6 - Lich su giao dich: ");
+            System.out.println("7 -Dang xuat");
             selectAdmin(scanner,user);
         }while (true);
 
@@ -42,6 +43,9 @@ AdminService adminService = AdminService.getInstance();
                 adminService.withdrawMoney(scanner);
                 break;
             case 6:
+                adminService.selectTransactionHistory();
+                break;
+            case 7:
                 user=null;
                 System.out.println("Ban da dang xuat thanh cong");
                 new MenuLogin().displayMenuPreLogin(scanner);

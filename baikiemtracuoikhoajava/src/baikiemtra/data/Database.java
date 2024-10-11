@@ -20,7 +20,7 @@ public class Database {
 public static final Map<Integer,Saller> accountLockSeller = new HashMap<>();
   public static final Map<Integer,Shipper> accountLockShipper = new HashMap<>();
  public static  final Map<Integer,Admin> adminList = new HashMap<>();
-
+public  static  final  Map<Integer,TransactionHistory> transactionHistory = new HashMap<>();
   static {
     adminList.put(1,new Admin("admin", "1", "ADMIN",Role.ADMIN,"Quang"));
     userMap.put("admin",adminList.get(1));
@@ -61,21 +61,21 @@ public static final Map<Integer,Saller> accountLockSeller = new HashMap<>();
     userMap.put("shipper2",shipperMap.get(10));
     //Them du lieu menu
 
-    menuMap.put(1, new Food("Coffee", TypeOfFood.BEVERAGE, 25000, 2));
-    Database.menuMap.put(2, new Food("Tea", TypeOfFood.BEVERAGE, 200000, 2));
+    menuMap.put(1, new Food("Orange Juice", TypeOfFood.BEVERAGE, 25000, 2));
+    Database.menuMap.put(2, new Food("Tea", TypeOfFood.BEVERAGE, 20000, 2));
     Database.menuMap.put(3, new Food("Orange Juice", TypeOfFood.BEVERAGE, 30000, 3));
     Database.menuMap.put(4, new Food("Lemonade",TypeOfFood.BEVERAGE, 28000, 3));
     Database.menuMap.put(5, new Food("Smoothie",TypeOfFood.BEVERAGE, 35000, 4));
     Database.menuMap.put(6, new Food("Water", TypeOfFood.DRINKS, 10000, 4));
     Database.menuMap.put(7, new Food("Milkshake", TypeOfFood.DRINKS, 40000, 5));
     Database.menuMap.put(8, new Food("Iced Tea", TypeOfFood.DRINKS, 22000, 5));
-    Database.menuMap.put(9, new Food("Coke", TypeOfFood.DRINKS, 15000, 6));
+    Database.menuMap.put(9, new Food("Peach Tea", TypeOfFood.DRINKS, 15000, 6));
     Database.menuMap.put(10, new Food("Sprite", TypeOfFood.DRINKS, 15000, 6));
     Database.menuMap.put(11, new Food("Cappuccino", TypeOfFood.BEVERAGE, 45000, 2));
     Database.menuMap.put(12, new Food("Latte", TypeOfFood.BEVERAGE, 50000, 2));
     Database.menuMap.put(13, new Food("Green Tea",TypeOfFood.BEVERAGE, 20000, 3));
     Database.menuMap.put(14, new Food("Peach Tea", TypeOfFood.BEVERAGE, 25000, 3));
-    Database.menuMap.put(15, new Food("Ginger Ale", TypeOfFood.DRINKS, 35000, 4));
+    Database.menuMap.put(15, new Food("Orange Juice", TypeOfFood.DRINKS, 35000, 4));
     Database.menuMap.put(16, new Food("Soda", TypeOfFood.DRINKS, 10000, 4));
     Database.menuMap.put(17, new Food("Energy Drink", TypeOfFood.DRINKS, 40000, 5));
     Database.menuMap.put(18, new Food("Cold Brew", TypeOfFood.BEVERAGE, 60000, 5));
@@ -84,16 +84,16 @@ public static final Map<Integer,Saller> accountLockSeller = new HashMap<>();
     Database.menuMap.put(21, new Food("Espresso", TypeOfFood.BEVERAGE, 35000, 2));
     Database.menuMap.put(22, new Food("Green Tea", TypeOfFood.BEVERAGE, 22000, 2));
     Database.menuMap.put(23, new Food("Smoothie", TypeOfFood.BEVERAGE, 38000, 3));
-    Database.menuMap.put(24, new Food("Orange Juice", TypeOfFood.BEVERAGE, 32000, 3));
+    Database.menuMap.put(24, new Food("Caffe", TypeOfFood.BEVERAGE, 32000, 3));
     Database.menuMap.put(25, new Food("Coke", TypeOfFood.DRINKS, 15000, 4));
     Database.menuMap.put(26, new Food("Sprite", TypeOfFood.DRINKS, 15000, 4));
     Database.menuMap.put(27, new Food("Latte", TypeOfFood.BEVERAGE, 55000, 5));
     Database.menuMap.put(28, new Food("Milkshake", TypeOfFood.DRINKS, 45000, 5));
     Database.menuMap.put(29, new Food("Water", TypeOfFood.DRINKS, 12000, 6));
-    Database.menuMap.put(30, new Food("Smoothie", TypeOfFood.BEVERAGE, 40000, 6));
+    Database.menuMap.put(30, new Food(" Orange Juice", TypeOfFood.BEVERAGE, 40000, 6));
     Database.menuMap.put(31, new Food("Tea", TypeOfFood.BEVERAGE, 20000, 2));
     Database.menuMap.put(32, new Food("Iced Coffee", TypeOfFood.BEVERAGE, 50000, 2));
-    Database.menuMap.put(33, new Food("Orange Juice", TypeOfFood.BEVERAGE, 33000, 3));
+    Database.menuMap.put(33, new Food("Tea", TypeOfFood.BEVERAGE, 33000, 3));
     Database.menuMap.put(34, new Food("Smoothie", TypeOfFood.BEVERAGE, 35000, 3));
     Database.menuMap.put(35, new Food("Water", TypeOfFood.DRINKS, 10000, 4));
     Database.menuMap.put(36, new Food("Iced Latte", TypeOfFood.BEVERAGE, 50000, 5));

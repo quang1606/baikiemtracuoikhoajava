@@ -8,4 +8,5 @@ public interface GeneralInformation <T>{
     void displayDeliveredState(T object);
     void cancelledState(T object);
     void withdrawMoney(Scanner scanner, T object);
+    void selectTransactionHistory(T object);
 }

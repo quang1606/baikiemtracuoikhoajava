@@ -104,12 +104,35 @@ public class SallerService implements GeneralInformation<Saller> {
             if (withdrawMoney.compareTo(object.getMoney()) <= 0 && withdrawMoney.compareTo(BigDecimal.ZERO) > 0) {
                 System.out.println("Rút tiền thành công: " + withdrawMoney + " K");
                 object.setMoney(object.getMoney().subtract(withdrawMoney));
+                TransactionHistory transactionHistory2 = new TransactionHistory(LocalDateTime.now(), BigDecimal.ZERO.subtract(withdrawMoney));
+                Database.transactionHistory.put(transactionHistory2.getId(), transactionHistory2);
+                Database.transactionHistory.get(transactionHistory2.getId()).setIdSeller(object.getId());
                 return;
 
             } else {
                 System.out.println("So tien khong hop le, vui lòng nhập lại.");
             }
         } while (true); // Tiếp tục yêu cầu cho đến khi có đầu vào hợp lệ
+    }
+
+    //Hien thi lich su giao dich
+    @Override
+    public void selectTransactionHistory(Saller object) {
+        if ( Database.transactionHistory.isEmpty()){
+            System.out.println("Ko co giao dich !");
+            return;
+
+        }
+        boolean check= false;
+        for (Map.Entry<Integer,TransactionHistory> entry: Database.transactionHistory.entrySet()){
+            if(entry.getValue().getIdSeller()== object.getId()){
+                System.out.println(entry.getValue());
+                check =true;
+            }
+        }
+        if (!check){
+            System.out.println("khong co giao dich");
+        }
     }
 
 
