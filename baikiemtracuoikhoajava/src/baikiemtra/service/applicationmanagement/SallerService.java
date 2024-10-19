@@ -415,32 +415,19 @@ public class SallerService implements GeneralInformation<Saller> {
         }
 
         //Xu ly danh gia don
-    public double simpleReview(int idFood){
-        int countOenStarts =0, countTowStars = 0, countThreeStars = 0,countFourStarts=0, countFiveStars = 0;
-        double generalAssessment=0, count=0;
-        for(Map.Entry<Integer,Feedback> entry :Database.feedbackMap.entrySet()){
-            if (entry.getValue().getIdFood()==idFood) {
-                if (entry.getValue().getReview().equals(Review.ONESTARS)) {
-                    countOenStarts++;
-                } else if (entry.getValue().getReview().equals(Review.TWOSTARS)) {
-                    countTowStars++;
-                } else if (entry.getValue().getReview().equals(Review.THREESTARS)) {
-                    countThreeStars++;
-                } else if (entry.getValue().getReview().equals(Review.FOURSTARS)) {
-                    countFourStarts++;
-                } else {
-                    countFiveStars++;
-                }
-                count++;
+        public double simpleReview(int idFood) {
+            // Kiểm tra nếu đã có dữ liệu đánh giá cho idFood
+            ReviewData reviewData = Database.reviewDataMap.get(idFood);
+
+            if (reviewData == null) {
+                // Nếu chưa có đánh giá nào, trả về 0
+                return 0;
             }
+
+            // Trả về đánh giá trung bình
+            return reviewData.getAverage();
         }
-        if (count==0){
-            return 0;
-        }
-        generalAssessment=(countOenStarts+countTowStars*2+countThreeStars*3+countFourStarts*4+countFiveStars*5)/count;
-        generalAssessment = Math.round(generalAssessment*10.0)/10.0;
-        return generalAssessment;
-    }
+
 
     public Saller intputSaller(Scanner scanner, User user){
        String name = getInputName(scanner);

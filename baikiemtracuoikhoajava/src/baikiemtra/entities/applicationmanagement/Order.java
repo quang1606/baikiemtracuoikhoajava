@@ -76,6 +76,7 @@ public class Order {
     public void prevState() {
         state.prev(this); // Quay lại trạng thái trước
     }
+
     public void printStatus() {
         state.printStatus(); // In trạng thái hiện tại
         System.out.println("Thời gian cập nhật: " + getFormattedTime()); // Hiển thị thời gian cập nhật

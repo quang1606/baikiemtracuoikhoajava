@@ -1,7 +1,6 @@
 package baikiemtra.view.applicationmanagement;
 
 import baikiemtra.data.Database;
-import baikiemtra.entities.applicationmanagement.Customer;
 import baikiemtra.entities.applicationmanagement.Saller;
 import baikiemtra.entities.login.User;
 import baikiemtra.service.applicationmanagement.SallerService;
@@ -26,8 +25,8 @@ public class MenuSaller {
             System.out.println("9 - Trang thai don hang");
             System.out.println("10 - Xem danh gia don hang");
             System.out.println("11 - Rut tien");
-            System.out.println("12 -Lich su giao dich: ");
-            System.out.println("13 -Dang xuat");
+            System.out.println("12 - Lich su giao dich: ");
+            System.out.println("13 - Dang xuat");
             selectShop(scanner,user);
         }while (true);
     }

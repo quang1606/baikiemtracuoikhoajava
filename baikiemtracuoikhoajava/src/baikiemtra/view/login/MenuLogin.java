@@ -1,10 +1,8 @@
 package baikiemtra.view.login;
 
 import baikiemtra.data.Database;
-import baikiemtra.entities.applicationmanagement.Customer;
 import baikiemtra.entities.applicationmanagement.Role;
 import baikiemtra.entities.login.User;
-import baikiemtra.service.applicationmanagement.CustomerService;
 import baikiemtra.service.login.UserService;
 import baikiemtra.untils.Utils;
 import baikiemtra.view.applicationmanagement.MenuAdmin;

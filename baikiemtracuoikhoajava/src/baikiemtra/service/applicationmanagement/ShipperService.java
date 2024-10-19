@@ -157,7 +157,7 @@ public class ShipperService implements GeneralInformation<Shipper> {
                         " - Shop: " + Database.sallerMap.get(order.getIdSeller()).getName() +
                         " - Mon an: " + order.getFoodName() +
                         " - Tien ship: " + order.getSumShip() +
-                        " - Tien hang: " + order.getFoodBill() +
+                        " - Tien hang: " + order.getTotalAmount() +
                         " - Khoảng cách: " + order.getDistance() + " km");
             }
         }else {
@@ -211,7 +211,9 @@ public class ShipperService implements GeneralInformation<Shipper> {
                     System.out.println("Đơn hàng " + order.getId() + " đã  giao hang thanh cong.");
                     Database.menuMap.get(order.getIdFood()).setQuantitySold(order.getQuantity()+Database.menuMap.get(order.getIdFood()).getQuantitySold());
                     Voucher voucher= Database.voucherMap.get(order.getIdVoucher());
-                    voucher.setQuantity(voucher.getQuantity()-1);
+                    if (voucher!=null) {
+                        voucher.setQuantity(voucher.getQuantity() - 1);
+                    }
                     if (order.getTotalAmount().compareTo(BigDecimal.ZERO)==0){
                         shipper.setMoney(shipper.getMoney().add(BigDecimal.valueOf(order.getSumShip())));
                         TransactionHistory transactionHistorySipper = new TransactionHistory(LocalDateTime.now(), BigDecimal.valueOf(order.getSumShip()));

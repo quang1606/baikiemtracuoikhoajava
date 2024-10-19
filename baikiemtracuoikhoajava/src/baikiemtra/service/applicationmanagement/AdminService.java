@@ -1,10 +1,7 @@
 package baikiemtra.service.applicationmanagement;
 
 import baikiemtra.data.Database;
-import baikiemtra.entities.applicationmanagement.Admin;
-import baikiemtra.entities.applicationmanagement.Saller;
-import baikiemtra.entities.applicationmanagement.Shipper;
-import baikiemtra.entities.applicationmanagement.TransactionHistory;
+import baikiemtra.entities.applicationmanagement.*;
 import baikiemtra.untils.Utils;
 
 import java.math.BigDecimal;
@@ -45,6 +42,13 @@ public class AdminService {
             int day = Utils.inputInteger(scanner);
             lockAccountSeller(saller, day);
             Database.accountLockSeller.put(saller.getId(), saller);
+            for (Map.Entry<Integer,Order> entry : Database.orderMap.entrySet()){
+                if (entry.getValue().getIdSeller()==saller.getId() && entry.getValue().getState().getStateName().equals("Chờ xác nhận")){
+                    entry.getValue().setState(new CancelledState());
+                    Database.abortMap.put(entry.getValue().getId(),entry.getValue());
+                    Database.orderMap.remove(entry.getValue().getId());
+                }
+            }
         } else {
             System.out.println("Tai khoan ko ton tai!");
         }
@@ -117,6 +121,17 @@ public class AdminService {
             int day = Utils.inputInteger(scanner);
             lockAccount(shipper, day);
             Database.accountLockShipper.put(shipper.getId(), shipper);
+            for (Map.Entry<Integer,Order> entry : Database.orderMap.entrySet()){
+                if (entry.getValue().getIdShipper()==shipper.getId() && entry.getValue().getState().getStateName().equals("Chờ giao hàng")){
+                    entry.getValue().setState(new CancelledState());
+                    if (entry.getValue().getTotalAmount().compareTo(BigDecimal.ZERO)==0) {
+                        Database.sallerMap.get(entry.getValue().getIdSeller()).setMoney( Database.sallerMap.get(entry.getValue().getIdSeller()).getMoney().subtract(entry.getValue().getFoodBill()));
+                        Database.customerMap.get(entry.getValue().getIdCustomer()).setMoney( Database.customerMap.get(entry.getValue().getIdCustomer()).getMoney().add(BigDecimal.valueOf(entry.getValue().getSumShip())).add(entry.getValue().getFoodBill()).add(BigDecimal.valueOf(Utils.floorFee)));
+                    }
+                    Database.abortMap.put(entry.getValue().getId(),entry.getValue());
+                    Database.orderMap.remove(entry.getValue().getId());
+                }
+            }
         } else {
             System.out.println("Tai khoan ko ton tai!");
         }

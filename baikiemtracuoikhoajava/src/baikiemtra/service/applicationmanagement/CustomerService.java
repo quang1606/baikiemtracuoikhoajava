@@ -273,6 +273,7 @@ public class CustomerService implements GeneralInformation<Customer> {
         boolean hasOrders = false;
         System.out.println("Don hang chua danh gia");
         for (Map.Entry<Integer,Order> entry : Database.deliveredMap.entrySet()){
+            //Kiem tra nhung don chua danh gia luu vao notYeratd
             if (entry.getValue().getIdCustomer()==customer.getId()&& Database.singleReviewMap.get(entry.getValue().getId())==null){
                 notYetRated.put(entry.getValue().getId(),entry.getValue());
                 System.out.println(notYetRated.get(entry.getValue().getId()));
@@ -292,6 +293,16 @@ public class CustomerService implements GeneralInformation<Customer> {
             String feedback = scanner.nextLine();
                 Feedback feedback1 = new Feedback(customer.getId(),order.getIdFood(),customer.getName(),review,feedback,order.getIdSeller());
                 Database.feedbackMap.put(feedback1.getId(),feedback1);
+            ReviewData reviewData = Database.reviewDataMap.get(order.getIdFood());
+
+            if (reviewData == null) {
+                // Nếu chưa có, tạo mới ReviewData và lưu vào reviewDataMap
+                reviewData = new ReviewData(0, 0);
+                Database.reviewDataMap.put(order.getIdFood(), reviewData);
+            }
+            // Thêm đánh giá mới vào tổng điểm và cập nhật số lượng đánh giá
+            reviewData.addReview(feedback1.getReview().getDiem());
+                //Luu vao don hang da danh gia
             Database.singleReviewMap.put(order.getId(), order);
         }
 

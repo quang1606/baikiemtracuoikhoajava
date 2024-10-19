@@ -21,7 +21,9 @@ public static final Map<Integer,Saller> accountLockSeller = new HashMap<>();
   public static final Map<Integer,Shipper> accountLockShipper = new HashMap<>();
  public static  final Map<Integer,Admin> adminList = new HashMap<>();
 public  static  final  Map<Integer,TransactionHistory> transactionHistory = new HashMap<>();
+  public static Map<Integer, ReviewData> reviewDataMap = new HashMap<>();
   static {
+
     adminList.put(1,new Admin("admin", "1", "ADMIN",Role.ADMIN,"Quang"));
     userMap.put("admin",adminList.get(1));
 // Thêm dữ liệu vào sallerMap và đồng thời thêm vào userMap
