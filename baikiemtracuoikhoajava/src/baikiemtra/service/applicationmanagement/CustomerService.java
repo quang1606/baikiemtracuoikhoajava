@@ -293,8 +293,8 @@ public class CustomerService implements GeneralInformation<Customer> {
             String feedback = scanner.nextLine();
                 Feedback feedback1 = new Feedback(customer.getId(),order.getIdFood(),customer.getName(),review,feedback,order.getIdSeller());
                 Database.feedbackMap.put(feedback1.getId(),feedback1);
-            ReviewData reviewData = Database.reviewDataMap.get(order.getIdFood());
 
+            ReviewData reviewData = Database.reviewDataMap.get(order.getIdFood());
             if (reviewData == null) {
                 // Nếu chưa có, tạo mới ReviewData và lưu vào reviewDataMap
                 reviewData = new ReviewData(0, 0);
